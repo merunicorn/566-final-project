@@ -44,7 +44,7 @@ function loadScene() {
   console.log(transf4);
   */
 
-  /*
+  
 
   // Set up instanced rendering data arrays here.
   // This example creates a set of positional
@@ -75,11 +75,9 @@ function loadScene() {
   }
   let offsets: Float32Array = new Float32Array(offsetsArray);
   let colors: Float32Array = new Float32Array(colorsArray);
-  // square.setInstanceVBOs(offsets, colors);
+  square.setInstanceVBOs(offsets, colors);
+  square.setNumInstances(n * n);
 
-  */
-
-  
 }
 
 function main() {

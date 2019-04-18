@@ -6,11 +6,8 @@ class Square extends Drawable {
   indices: Uint32Array;
   positions: Float32Array;
   colors: Float32Array;
+  offsets: Float32Array; // Data for bufTranslate
 
-  transf1: Float32Array; // Data for bufTransform1 (first column)
-  transf2: Float32Array;
-  transf3: Float32Array;
-  transf4: Float32Array;
 
   constructor() {
     super(); // Call the constructor of the super class. This is required.
@@ -28,12 +25,7 @@ class Square extends Drawable {
     this.generateIdx();
     this.generatePos();
     this.generateCol();
-
-    this.generateTransform1();
-    this.generateTransform2();
-    this.generateTransform3();
-    this.generateTransform4();
-
+    this.generateTranslate();
 
     this.count = this.indices.length;
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.bufIdx);
@@ -45,29 +37,15 @@ class Square extends Drawable {
     console.log(`Created square`);
   }
 
-  setInstanceVBOs(colors: Float32Array,
-                  transf1: Float32Array, transf2: Float32Array,
-                  transf3: Float32Array, transf4: Float32Array) {
+  setInstanceVBOs(offsets: Float32Array, colors: Float32Array) {
     this.colors = colors;
+    this.offsets = offsets;
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bufCol);
     gl.bufferData(gl.ARRAY_BUFFER, this.colors, gl.STATIC_DRAW);
-
-    this.transf1 = transf1;
-    this.transf2 = transf2;
-    this.transf3 = transf3;
-    this.transf4 = transf4;
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufTransform1);
-    gl.bufferData(gl.ARRAY_BUFFER, this.transf1, gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufTransform2);
-    gl.bufferData(gl.ARRAY_BUFFER, this.transf2, gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufTransform3);
-    gl.bufferData(gl.ARRAY_BUFFER, this.transf3, gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufTransform4);
-    gl.bufferData(gl.ARRAY_BUFFER, this.transf4, gl.STATIC_DRAW);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.bufTranslate);
+    gl.bufferData(gl.ARRAY_BUFFER, this.offsets, gl.STATIC_DRAW);
   }
-  
 };
 
 export default Square;
