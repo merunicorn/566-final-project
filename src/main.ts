@@ -28,7 +28,7 @@ function loadScene() {
   screenQuad = new ScreenQuad();
   screenQuad.create();
 
-  /*
+  
   g = new Grid(10, 10);
   let gVBO = g.setVBO();
 
@@ -42,10 +42,10 @@ function loadScene() {
   square.setInstanceVBOs(colors, transf1, transf2, transf3, transf4);
 
   console.log(transf4);
-  */
-
   
 
+  
+  /*
   // Set up instanced rendering data arrays here.
   // This example creates a set of positional
   // offsets and gradiated colors for a 100x100 grid
@@ -77,6 +77,7 @@ function loadScene() {
   let colors: Float32Array = new Float32Array(colorsArray);
   square.setInstanceVBOs(offsets, colors);
   square.setNumInstances(n * n);
+  */
 
 }
 

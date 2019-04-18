@@ -56,8 +56,10 @@ class Grid {
                 t3Array.push(Math.cos(rad));
                 t3Array.push(0);
 
+                //t4Array.push(i);
                 t4Array.push((i - this.width / 2)); // x transformation
                 t4Array.push(0); // y transformation
+                //t4Array.push(j);
                 t4Array.push((j - this.height / 2)); // z transformation
                 t4Array.push(1);
 
