@@ -48,8 +48,6 @@ function loadScene() {
   square.setNumInstances(100); // grid of "particles"
   square.setInstanceVBOs(p, transf1, transf2, transf3, transf4);
 
-  console.log("transf4:" + transf4);
-
   let r = 24.0; // changes speed ??
   let fVBO = g.setFallVBO(r);
   let f1 = fVBO.f1Array;
@@ -69,9 +67,9 @@ function loadScene() {
                             f3[0], f3[1], f3[2], f3[3],
                             f4[0], f4[1], f4[2], f4[3]);
   fallmat2 = mat4.fromValues(f5[0], f5[1], f5[2], f5[3],
-                            f2[0], f2[1], f2[2], f6[3],
-                            f3[0], f3[1], f3[2], f7[3],
-                            f4[0], f4[1], f4[2], f8[3]);
+                            f6[0], f6[1], f6[2], f6[3],
+                            f7[0], f7[1], f7[2], f7[3],
+                            f8[0], f8[1], f8[2], f8[3]);
   fallmat3 = mat4.fromValues(f9[0], f9[1], f9[2], f9[3],
                             f10[0], f10[1], f10[2], f10[3],
                             f11[0], f11[1], f11[2], f11[3],
