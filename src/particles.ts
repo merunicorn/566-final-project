@@ -26,7 +26,7 @@ class Particle {
 
         // respawn at top if hits some 'ground' value
         if (this.posf < -10) { // 'ground' value / min height
-            this.posf = 10; // 'sky' value / max height
+            this.posf = 0; // 'sky' value / max height
             this.velf = 0; // reset velocity since particle has totally reset
         }
         

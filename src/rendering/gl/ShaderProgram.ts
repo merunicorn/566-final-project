@@ -41,6 +41,9 @@ class ShaderProgram {
   unifUp: WebGLUniformLocation;
   unifDimensions: WebGLUniformLocation;
 
+  // FALL DATA
+  unifFall: WebGLUniformLocation;
+
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
 
@@ -56,19 +59,26 @@ class ShaderProgram {
     this.attrNor = gl.getAttribLocation(this.prog, "vs_Nor");
     this.attrCol = gl.getAttribLocation(this.prog, "vs_Col");
     this.attrTranslate = gl.getAttribLocation(this.prog, "vs_Translate");
+
     this.attrTransform1 = gl.getAttribLocation(this.prog, "vs_Transf1");
     this.attrTransform2 = gl.getAttribLocation(this.prog, "vs_Transf2");
     this.attrTransform3 = gl.getAttribLocation(this.prog, "vs_Transf3");
     this.attrTransform4 = gl.getAttribLocation(this.prog, "vs_Transf4");
+
     this.attrUV = gl.getAttribLocation(this.prog, "vs_UV");
+
     this.unifModel      = gl.getUniformLocation(this.prog, "u_Model");
     this.unifModelInvTr = gl.getUniformLocation(this.prog, "u_ModelInvTr");
     this.unifViewProj   = gl.getUniformLocation(this.prog, "u_ViewProj");
+
     this.unifCameraAxes      = gl.getUniformLocation(this.prog, "u_CameraAxes");
     this.unifTime      = gl.getUniformLocation(this.prog, "u_Time");
+
     this.unifEye   = gl.getUniformLocation(this.prog, "u_Eye");
     this.unifRef   = gl.getUniformLocation(this.prog, "u_Ref");
     this.unifUp   = gl.getUniformLocation(this.prog, "u_Up");
+
+    this.unifFall = gl.getUniformLocation(this.prog, "u_Fall");
   }
 
   use() {
@@ -130,6 +140,13 @@ class ShaderProgram {
     this.use();
     if (this.unifTime !== -1) {
       gl.uniform1f(this.unifTime, t);
+    }
+  }
+
+  setFall(f: mat4) {
+    this.use();
+    if (this.unifFall !== -1) {
+      gl.uniformMatrix4fv(this.unifFall, false, f);
     }
   }
 

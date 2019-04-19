@@ -1,4 +1,4 @@
-import {vec3} from 'gl-matrix';
+import {vec3, mat4} from 'gl-matrix';
 import * as Stats from 'stats-js';
 import * as DAT from 'dat-gui';
 import Square from './geometry/Square';
@@ -21,6 +21,7 @@ let screenQuad: ScreenQuad;
 let time: number = 0.0;
 
 let g: Grid;
+let fallmat: mat4;
 
 function loadScene() {
   square = new Square();
@@ -42,43 +43,18 @@ function loadScene() {
   square.setInstanceVBOs(colors, transf1, transf2, transf3, transf4);
 
   console.log(transf4);
-  
 
-  
-  /*
-  // Set up instanced rendering data arrays here.
-  // This example creates a set of positional
-  // offsets and gradiated colors for a 100x100 grid
-  // of squares, even though the VBO data for just
-  // one square is actually passed to the GPU
-  let offsetsArray = [];
-  let colorsArray = [];
-  let n: number = 10.0;
-  for(let i = 0; i < n; i++) {
-    for(let j = 0; j < n; j++) {
-      offsetsArray.push(i);
-      //offsetsArray.push(j);
-      //offsetsArray.push(0);
-      if (i % 2 == 0 && j % 2 == 0) {
-        offsetsArray.push(0);
-      }
-      else {
-        offsetsArray.push(10); // y offset on some squares
-      }
-      offsetsArray.push(j); // changes orientation of square
-
-      colorsArray.push(i / n);
-      colorsArray.push(j / n);
-      colorsArray.push(1.0);
-      colorsArray.push(1.0); // Alpha channel
-    }
-  }
-  let offsets: Float32Array = new Float32Array(offsetsArray);
-  let colors: Float32Array = new Float32Array(colorsArray);
-  square.setInstanceVBOs(offsets, colors);
-  square.setNumInstances(n * n);
-  */
-
+  let r = 10.0; // changes speed ??
+  let fVBO = g.setFallVBO(r);
+  let f1 = fVBO.fall1Array;
+  let f2 = fVBO.fall2Array;
+  let f3 = fVBO.fall3Array;
+  let f4 = fVBO.fall4Array;
+  fallmat = mat4.fromValues(f1[0], f1[1], f1[2], f1[3],
+                            f2[0], f2[1], f2[2], f2[3],
+                            f3[0], f3[1], f3[2], f3[3],
+                            f4[0], f4[1], f4[2], f4[3]);
+  console.log(fallmat);
 }
 
 function main() {
@@ -132,10 +108,10 @@ function main() {
     flat.setTime(time++);
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
     renderer.clear();
-    renderer.render(camera, flat, [screenQuad]);
+    renderer.render(camera, flat, [screenQuad], fallmat);
     renderer.render(camera, instancedShader, [
       square,
-    ]);
+    ], fallmat);
     stats.end();
 
     // Tell the browser to call `tick` again whenever it renders a new frame

@@ -11,24 +11,29 @@ class Grid {
         this.height = h;
         this.grid = [];
         this.initGrid();
-        this.waterCheck();
+        // this.waterCheck();
     }
 
     initGrid() {
         for (var i = 0; i < this.width; i++) {
             this.grid[i] = [];
             for (var j = 0; j < this.height; j++) {
+                /*var random0 = Math.random();
+                random0 *= -10.0;
+                random0 = Math.floor(random0);
+
+                this.grid[i][j] = new Particle(random0); // starting position is random within range*/
                 this.grid[i][j] = new Particle(0);
             }
         }
     }
 
-    waterCheck() {
+    /*waterCheck() {
         for (var i = 0; i < this.width; i++) {
             for (var j = 0; j < this.width; j++) {
             }
         }
-    }
+    }*/
 
     setVBO(): any {
         let t1Array: number[] = [];
@@ -83,6 +88,43 @@ class Grid {
         outVBO.transf4Array = t4;
         outVBO.colorsArray = col;
 
+        return outVBO;
+    }
+
+    setFallVBO(r: number): any {
+        let f1Array: number[] = [];
+        let f2Array: number[] = [];
+        let f3Array: number[] = [];
+        let f4Array: number[] = [];
+
+        for (var k = 0; k < 4; k++) {
+            f1Array.push(this.grid[0][0].getNewPos(1.0 / r));
+        }
+        for (var k = 0; k < 4; k++) {
+            f2Array.push(this.grid[0][0].getNewPos(1.0 / r));
+        }
+        for (var k = 0; k < 4; k++) {
+            f3Array.push(this.grid[0][0].getNewPos(1.0 / r));
+        }
+        for (var k = 0; k < 4; k++) {
+            f4Array.push(this.grid[0][0].getNewPos(1.0 / r));
+        }
+
+        console.log("f1:" + f1Array);
+        console.log("f2:" + f2Array);
+        console.log("f3:" + f3Array);
+        console.log("f4:" + f4Array);
+
+        let f1: Float32Array = new Float32Array(f1Array);
+        let f2: Float32Array = new Float32Array(f2Array);
+        let f3: Float32Array = new Float32Array(f3Array);
+        let f4: Float32Array = new Float32Array(f4Array);
+
+        let outVBO: any = {};
+        outVBO.fall1Array = f1;
+        outVBO.fall2Array = f2;
+        outVBO.fall3Array = f3;
+        outVBO.fall4Array = f4;
         return outVBO;
     }
 }

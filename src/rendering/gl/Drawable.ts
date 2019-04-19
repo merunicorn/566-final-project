@@ -11,6 +11,7 @@ abstract class Drawable {
   bufTransform2: WebGLBuffer;
   bufTransform3: WebGLBuffer;
   bufTransform4: WebGLBuffer;
+
   bufCol: WebGLBuffer;
   bufUV: WebGLBuffer;
 
