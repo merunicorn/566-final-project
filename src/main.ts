@@ -35,16 +35,20 @@ function loadScene() {
   g = new Grid(10, 10);
   let gVBO = g.setVBO();
 
-  let colors: Float32Array = new Float32Array(gVBO.colorsArray);
+  let pVBO = g.setPosVBO();
+  let p: Float32Array = new Float32Array(pVBO.posArray);
+
+  console.log("p:" + p);
+
   let transf1: Float32Array = new Float32Array(gVBO.transf1Array);
   let transf2: Float32Array = new Float32Array(gVBO.transf2Array);
   let transf3: Float32Array = new Float32Array(gVBO.transf3Array);
   let transf4: Float32Array = new Float32Array(gVBO.transf4Array);
 
   square.setNumInstances(100); // grid of "particles"
-  square.setInstanceVBOs(colors, transf1, transf2, transf3, transf4);
+  square.setInstanceVBOs(p, transf1, transf2, transf3, transf4);
 
-  console.log(transf4);
+  console.log("transf4:" + transf4);
 
   let r = 24.0; // changes speed ??
   let fVBO = g.setFallVBO(r);

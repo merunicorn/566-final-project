@@ -40,7 +40,7 @@ class Grid {
         let t2Array: number[] = [];
         let t3Array: number[] = [];
         let t4Array: number[] = [];
-        let colArray: number[] = [];
+        //let colArray: number[] = [];
 
         let rad = 90 * Math.PI / 180;
 
@@ -68,10 +68,10 @@ class Grid {
                 t4Array.push((j - this.height / 2)); // z transformation
                 t4Array.push(1);
 
-                colArray.push(0);
+                /*colArray.push(0);
                 colArray.push(0);
                 colArray.push(0.5);
-                colArray.push(1);
+                colArray.push(1);*/
             }
         }
 
@@ -79,14 +79,15 @@ class Grid {
         let t2: Float32Array = new Float32Array(t2Array);
         let t3: Float32Array = new Float32Array(t3Array);
         let t4: Float32Array = new Float32Array(t4Array);
-        let col: Float32Array = new Float32Array(colArray);
+        
+        //let col: Float32Array = new Float32Array(colArray);
 
         let outVBO: any = {};
         outVBO.transf1Array = t1;
         outVBO.transf2Array = t2;
         outVBO.transf3Array = t3;
         outVBO.transf4Array = t4;
-        outVBO.colorsArray = col;
+        //outVBO.colorsArray = col;
 
         return outVBO;
     }
@@ -185,6 +186,28 @@ class Grid {
         outVBO.f10Array = f10;
         outVBO.f11Array = f11;
         outVBO.f12Array = f12;
+        return outVBO;
+    }
+
+    setPosVBO(): any {
+        let p1Array: number[] = [];
+
+        for (var i = 0; i < this.width; i++) {
+            for (var j = 0; j < this.height; j++) {
+                var random0 = Math.random();
+                random0 *= 48.0;
+                random0 = Math.floor(random0);
+                // random pos between 1-48
+                // corresponds to fall matrix index
+                p1Array.push(random0); 
+            }
+        }
+
+        let p1: Float32Array = new Float32Array(p1Array);
+
+        let outVBO: any = {};
+        outVBO.posArray = p1;
+
         return outVBO;
     }
 }

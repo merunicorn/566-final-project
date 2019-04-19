@@ -12,7 +12,9 @@ uniform mat3 u_CameraAxes; // Used for rendering particles as billboards (quads 
 
 in vec4 vs_Pos; // Non-instanced; each particle is the same quad drawn in a different place
 in vec4 vs_Nor; // Non-instanced, and presently unused
-in vec4 vs_Col; // An instanced rendering attribute; each particle instance has a different color
+
+in float vs_Col; // PARTICLE HEIGHT, NOT COLOR
+
 in vec3 vs_Translate; // Another instance rendering attribute used to position each quad instance in the scene
 in vec2 vs_UV; // Non-instanced, and presently unused in main(). Feel free to use it for your meshes.
 
@@ -26,13 +28,16 @@ out vec4 fs_Pos;
 
 void main()
 {
-    fs_Col = vs_Col;
+    //fs_Col = vs_Col;
+    fs_Col = vec4(1.0,1.0,0.0,1.0);
     fs_Pos = vs_Pos;
 
     vec4 newT4 = vs_Transf4;
 
     float tsec = u_Time - 48.0 * floor(u_Time/48.0); // u_Time mod 48
     int i = int(tsec);
+
+    i += int(vs_Col); // starting position offset
 
     if (i > 48) { // clamp at top + reset i
         i = i - 48;
