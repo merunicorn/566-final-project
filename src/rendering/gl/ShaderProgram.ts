@@ -43,6 +43,8 @@ class ShaderProgram {
 
   // FALL DATA
   unifFall: WebGLUniformLocation;
+  unifFall2: WebGLUniformLocation;
+  unifFall3: WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -78,7 +80,9 @@ class ShaderProgram {
     this.unifRef   = gl.getUniformLocation(this.prog, "u_Ref");
     this.unifUp   = gl.getUniformLocation(this.prog, "u_Up");
 
-    this.unifFall = gl.getUniformLocation(this.prog, "u_Fall");
+    this.unifFall = gl.getUniformLocation(this.prog, "u_Fall1");
+    this.unifFall2 = gl.getUniformLocation(this.prog, "u_Fall2");
+    this.unifFall3 = gl.getUniformLocation(this.prog, "u_Fall3");
   }
 
   use() {
@@ -143,10 +147,22 @@ class ShaderProgram {
     }
   }
 
-  setFall(f: mat4) {
+  setFall1(f: mat4) {
     this.use();
     if (this.unifFall !== -1) {
       gl.uniformMatrix4fv(this.unifFall, false, f);
+    }
+  }
+  setFall2(f: mat4) {
+    this.use();
+    if (this.unifFall2 !== -1) {
+      gl.uniformMatrix4fv(this.unifFall2, false, f);
+    }
+  }
+  setFall3(f: mat4) {
+    this.use();
+    if (this.unifFall3 !== -1) {
+      gl.uniformMatrix4fv(this.unifFall3, false, f);
     }
   }
 

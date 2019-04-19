@@ -23,7 +23,7 @@ class OpenGLRenderer {
   }
 
   render(camera: Camera, prog: ShaderProgram, drawables: Array<Drawable>,
-         fallmat: mat4) {
+         fallmat: mat4, fallmat2: mat4, fallmat3: mat4) {
     let model = mat4.create();
     let viewProj = mat4.create();
     let color = vec4.fromValues(1, 0, 0, 1);
@@ -40,7 +40,9 @@ class OpenGLRenderer {
     prog.setViewProjMatrix(viewProj);
     prog.setCameraAxes(axes);
 
-    prog.setFall(fallmat);
+    prog.setFall1(fallmat);
+    prog.setFall2(fallmat2);
+    prog.setFall3(fallmat3);
 
     for (let drawable of drawables) {
       prog.draw(drawable);
