@@ -11,36 +11,22 @@ class Grid {
         this.height = h;
         this.grid = [];
         this.initGrid();
-        // this.waterCheck();
     }
 
     initGrid() {
         for (var i = 0; i < this.width; i++) {
             this.grid[i] = [];
             for (var j = 0; j < this.height; j++) {
-                /*var random0 = Math.random();
-                random0 *= -10.0;
-                random0 = Math.floor(random0);
-
-                this.grid[i][j] = new Particle(random0); // starting position is random within range*/
                 this.grid[i][j] = new Particle(10);
             }
         }
     }
-
-    /*waterCheck() {
-        for (var i = 0; i < this.width; i++) {
-            for (var j = 0; j < this.width; j++) {
-            }
-        }
-    }*/
 
     setVBO(): any {
         let t1Array: number[] = [];
         let t2Array: number[] = [];
         let t3Array: number[] = [];
         let t4Array: number[] = [];
-        //let colArray: number[] = [];
 
         let rad = 90 * Math.PI / 180;
 
@@ -67,11 +53,6 @@ class Grid {
                 //t4Array.push(j);
                 t4Array.push((j - this.height / 2)); // z transformation
                 t4Array.push(1);
-
-                /*colArray.push(0);
-                colArray.push(0);
-                colArray.push(0.5);
-                colArray.push(1);*/
             }
         }
 
@@ -79,15 +60,12 @@ class Grid {
         let t2: Float32Array = new Float32Array(t2Array);
         let t3: Float32Array = new Float32Array(t3Array);
         let t4: Float32Array = new Float32Array(t4Array);
-        
-        //let col: Float32Array = new Float32Array(colArray);
 
         let outVBO: any = {};
         outVBO.transf1Array = t1;
         outVBO.transf2Array = t2;
         outVBO.transf3Array = t3;
         outVBO.transf4Array = t4;
-        //outVBO.colorsArray = col;
 
         return outVBO;
     }
