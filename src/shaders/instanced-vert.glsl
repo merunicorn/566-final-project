@@ -25,12 +25,15 @@ in vec4 vs_Transf4;
 
 out vec4 fs_Col;
 out vec4 fs_Pos;
+out vec2 fs_UVtex;
 
 void main()
 {
     //fs_Col = vs_Col;
     fs_Col = vec4(1.0,1.0,0.0,1.0);
     fs_Pos = vs_Pos;
+
+    fs_UVtex = vec2(fs_Pos.x + 0.5, fs_Pos.y + 0.5);
 
     vec4 newT4 = vs_Transf4;
 

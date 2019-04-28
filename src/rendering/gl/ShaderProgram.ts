@@ -1,6 +1,7 @@
 import {vec3, vec4, mat4, mat3} from 'gl-matrix';
 import Drawable from './Drawable';
 import {gl} from '../../globals';
+import Texture from './Texture';
 
 var activeProgram: WebGLProgram = null;
 
@@ -46,6 +47,10 @@ class ShaderProgram {
   unifFall2: WebGLUniformLocation;
   unifFall3: WebGLUniformLocation;
 
+  // TEXTURE DATA
+  unifSampler1: WebGLUniformLocation;
+  unifSampler2: WebGLUniformLocation;
+
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
 
@@ -83,6 +88,18 @@ class ShaderProgram {
     this.unifFall = gl.getUniformLocation(this.prog, "u_Fall1");
     this.unifFall2 = gl.getUniformLocation(this.prog, "u_Fall2");
     this.unifFall3 = gl.getUniformLocation(this.prog, "u_Fall3");
+
+    // TEXTURE DATA
+    this.unifSampler1   = gl.getUniformLocation(this.prog, "u_TestTex");
+    this.unifSampler2   = gl.getUniformLocation(this.prog, "u_TestTex2");
+  }
+
+   // Bind the given Texture to the given texture unit
+   bindTexToUnit(handleName: WebGLUniformLocation, tex: Texture, unit: number) {
+    this.use();
+    gl.activeTexture(gl.TEXTURE0 + unit);
+    tex.bindTex();
+    gl.uniform1i(handleName, unit);
   }
 
   use() {

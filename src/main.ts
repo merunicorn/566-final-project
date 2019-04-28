@@ -7,6 +7,7 @@ import OpenGLRenderer from './rendering/gl/OpenGLRenderer';
 import Camera from './Camera';
 import {setGL} from './globals';
 import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
+import Texture from './rendering/gl/Texture';
 
 import Particle from './particles';
 import Grid from './grid';
@@ -24,6 +25,9 @@ let g: Grid;
 let fallmat: mat4;
 let fallmat2: mat4;
 let fallmat3: mat4;
+
+let testTex: Texture;
+let testTex2: Texture;
 
 function loadScene() {
   square = new Square();
@@ -77,6 +81,9 @@ function loadScene() {
   console.log(fallmat);
   console.log(fallmat2);
   console.log(fallmat3);
+
+  testTex = new Texture('../resources/fbmRep1.png', 0);
+  testTex2 = new Texture('../resources/rain.png', 1);
 }
 
 function main() {
@@ -109,8 +116,8 @@ function main() {
   const renderer = new OpenGLRenderer(canvas);
   renderer.setClearColor(0.2, 0.2, 0.2, 1);
   gl.enable(gl.DEPTH_TEST);
-  // gl.enable(gl.BLEND);
-  // gl.blendFunc(gl.ONE, gl.ONE); // Additive blending
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.ONE, gl.ONE); // Additive blending
 
   const instancedShader = new ShaderProgram([
     new Shader(gl.VERTEX_SHADER, require('./shaders/instanced-vert.glsl')),
@@ -121,6 +128,11 @@ function main() {
     new Shader(gl.VERTEX_SHADER, require('./shaders/flat-vert.glsl')),
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/flat-frag.glsl')),
   ]);
+
+  instancedShader.bindTexToUnit(instancedShader.unifSampler1, testTex, 0);
+  instancedShader.bindTexToUnit(instancedShader.unifSampler2, testTex2, 1);
+  flat.bindTexToUnit(flat.unifSampler1, testTex, 0);
+  flat.bindTexToUnit(flat.unifSampler2, testTex2, 1);
 
   // This function will be called every frame
   function tick() {

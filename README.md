@@ -1,6 +1,6 @@
 # Final Project: Rain Environment
 ## Amy Chen // amyjchen
-## Demo Link: https://merunicorn.github.io/566-final-project/
+## Demo Link: 
 
 ![](rain.png)
 
