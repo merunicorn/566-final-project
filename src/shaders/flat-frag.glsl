@@ -247,6 +247,21 @@ vec2 rayMarch(vec3 eye, vec3 dir) {
   return vec2(t, 0.0);
 }
 
+float softShadow(vec3 dir, vec3 origin, float min_t, float k) {
+  float res = 1.0;
+  float t = min_t;
+  for(int i = 0; i < 1000; ++i) {
+    //float m = map_value;
+    float m = pedestalSDF(origin + t * dir); // NEED TO CALL SPECIFIC SDF FXN HERE
+    if(m < 0.0001) {
+      return 0.0;
+    }
+    res = min(res, k * m / t);
+    t += m;
+  }
+  return res;
+}
+
 void main() {
   // RAYCASTING
   // convert to NDC screen coors
@@ -264,6 +279,51 @@ void main() {
         // diffuseColor = vec4(colorFxn(vec3(185.0, 230.0, 243.0)), 1.0);
         diffuseColor = vec4(colorFxn(vec3(2.0, 27.0, 38.0)), 1.0);
       }        
+
+      // LIGHTING
+      /*
+      if (march[1] == 1.0) { // if matches specific SDF id
+        vec4 lights[4];
+        vec3 lightColor[4];
+
+        // Light positions with intensity as w-component
+        lights[0] = vec4(6.0, 3.0, 5.0, 2.0); // key light
+        lights[1] = vec4(-6.0, 3.0, 5.0, 1.5); // fill light
+        lights[2] = vec4(0.0, -3.0, 5.0, 2.0);
+        lights[3] = vec4(vec3(light), 1.0);
+        
+        lightColor[0] = colorFxn(vec3(132.0, 115.0, 198.0));
+        lightColor[1] = colorFxn(vec3(255.0, 241.0, 207.0));
+        lightColor[2] = colorFxn(vec3(155.0, 233.0, 255.0));
+        lightColor[3] = vec3(1.0);
+
+        vec3 sum = vec3(0.0);
+        for (int j = 0; j < 4; j++) {
+          // Calculate diffuse term for shading
+          float diffuseTerm = dot(normalize(nor), normalize(vec3(lights[j])));
+          // Avoid negative lighting values
+          diffuseTerm = clamp(diffuseTerm, 0.0, 1.0);
+          float ambientTerm = 0.2;
+          float lightIntensity = diffuseTerm + ambientTerm;
+
+          // Implement specular light
+          vec4 H;
+          for (int i = 0; i < 4; i++) {
+            H[i] = (lights[j][i] + u_Eye[i]) / 2.0;
+          }
+          float specularIntensity = max(pow(dot(normalize(H), normalize(vec4(nor,1.0))), 1.5), 0.0);
+
+          // Compute final shaded color
+          vec3 mater = vec3(1.0) * min(specularIntensity, 1.0) * lights[j].w * lightColor[j];
+          diffuseColor *= softShadow(dir, vec3(lights[j]), 1.5, 4.0);
+          sum += mater * diffuseColor.rgb * (lights[j].w + specularIntensity);
+        }
+        out_Col = vec4((sum / 3.0), 1.0);
+      }
+      else {
+        out_Col = diffuseColor;
+      }
+      */
       out_Col = diffuseColor;
     }
     else {

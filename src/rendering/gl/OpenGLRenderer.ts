@@ -1,4 +1,4 @@
-import {mat4, vec4, mat3} from 'gl-matrix';
+import {mat4, vec3, vec4, mat3} from 'gl-matrix';
 import Drawable from './Drawable';
 import Camera from '../../Camera';
 import {gl} from '../../globals';
@@ -28,13 +28,17 @@ class OpenGLRenderer {
     let viewProj = mat4.create();
     let color = vec4.fromValues(1, 0, 0, 1);
     // Each column of the axes matrix is an axis. Right, Up, Forward.
-    let axes = mat3.fromValues(camera.right[0], camera.right[1], camera.right[2],
+    /*let axes = mat3.fromValues(camera.right[0], camera.right[1], camera.right[2],
                                camera.up[0], camera.up[1], camera.up[2],
-                               camera.forward[0], camera.forward[1], camera.forward[2]);
+                               camera.forward[0], camera.forward[1], camera.forward[2]);*/
+    let axes = mat3.fromValues(camera.right[0], camera.right[1], camera.right[2],
+                                0, 1, 0,
+                                camera.forward[0], camera.forward[1], camera.forward[2]);
 
 
-    prog.setEyeRefUp(camera.controls.eye, camera.controls.center, camera.controls.up);
-    //prog.setEyeRefUp(camera.position, camera.target, camera.up);
+    //prog.setEyeRefUp(camera.controls.eye, camera.controls.center, camera.controls.up);
+    prog.setEyeRefUp(vec3.fromValues(0,0,-20), vec3.fromValues(0,0,5.0), vec3.fromValues(0,1,0));
+    // prog.setEyeRefUp(camera.position, camera.target, camera.up);
     mat4.identity(model);
     mat4.multiply(viewProj, camera.projectionMatrix, camera.viewMatrix);
     prog.setModelMatrix(model);
