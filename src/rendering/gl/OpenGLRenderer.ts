@@ -34,6 +34,7 @@ class OpenGLRenderer {
 
 
     prog.setEyeRefUp(camera.controls.eye, camera.controls.center, camera.controls.up);
+    //prog.setEyeRefUp(camera.position, camera.target, camera.up);
     mat4.identity(model);
     mat4.multiply(viewProj, camera.projectionMatrix, camera.viewMatrix);
     prog.setModelMatrix(model);

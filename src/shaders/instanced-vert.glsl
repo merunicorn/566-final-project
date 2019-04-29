@@ -27,11 +27,14 @@ out vec4 fs_Col;
 out vec4 fs_Pos;
 out vec2 fs_UVtex;
 
+out float fs_Splash;
+
 void main()
 {
     //fs_Col = vs_Col;
     fs_Col = vec4(1.0,1.0,0.0,1.0);
     fs_Pos = vs_Pos;
+    fs_Splash = 0.0;
 
     fs_UVtex = vec2(fs_Pos.x + 0.5, fs_Pos.y + 0.5);
 
@@ -96,6 +99,19 @@ void main()
     if (i < 44) {
         gl_Position = u_ViewProj * vec4(billboardPos, 1.0); // billboard
     }
+    else if (i < 47) {
+        i = 44; // freeze @ collision depth
+
+        // render @ collision depth
+        newT4[1] = u_Fall3[2][i-8];
+        transf = mat4((vs_Transf1),(vs_Transf2),(vs_Transf3),(newT4));
+        offset = vec3(newT4);
+        billboardPos = offset + vs_Pos.x * u_CameraAxes[0] + vs_Pos.y * u_CameraAxes[1];
+        gl_Position = u_ViewProj * vec4(billboardPos, 1.0); // billboard
+
+        // pass in splash flag to frag
+        fs_Splash = 1.0;
+    }
     else {
         i = 44; // freeze @ collision depth
 
@@ -105,6 +121,9 @@ void main()
         offset = vec3(newT4);
         billboardPos = offset + vs_Pos.x * u_CameraAxes[0] + vs_Pos.y * u_CameraAxes[1];
         gl_Position = u_ViewProj * vec4(billboardPos, 1.0); // billboard
+
+        // pass in splash flag to frag
+        fs_Splash = 2.0;
     }
     
     // gl_Position = u_ViewProj * transf * vs_Pos; // no billboard

@@ -5,7 +5,8 @@ uniform vec3 u_Eye, u_Ref, u_Up;
 uniform vec2 u_Dimensions;
 uniform float u_Time;
 
-uniform sampler2D u_TestTex;
+uniform sampler2D u_SplashTex1;
+uniform sampler2D u_SplashTex2;
 uniform sampler2D u_TestTex2;
 
 in vec2 fs_Pos;
@@ -183,12 +184,19 @@ float pedestalSDF(vec3 p) {
   vec3 t_box = vec3(0.0, 6.0, 5.0);
   vec3 p_box = trans_pt(p, t_box);
 
-  // SPHERE SDFs
+  // TORUS test 
+  // vec3 t_tor = vec3(0.0, 0.0, 5.0);
+  // vec3 p_tor = trans_pt(p, t_tor);
+
+  // SDFs
   float sph = sdf_sphere(p_sph, 3.5); // radius
   float box = sdf_box(p_box, vec3(4.0)); // l,w,h 
+  // float tor = sdf_torus(p_tor, vec2(2.5, 0.5)); // torus radius, tube radius/thickness
 
   // COMBINE SHAPES 
   float dist = sect_op(sph, box);
+  // float dist2 = union_op(dist, tor);
+  // dist = dist2;
 
   // RETURN DIST 
   // float dist = sph;

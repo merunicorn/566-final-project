@@ -26,7 +26,8 @@ let fallmat: mat4;
 let fallmat2: mat4;
 let fallmat3: mat4;
 
-let testTex: Texture;
+let splashTex1: Texture;
+let splashTex2: Texture;
 let testTex2: Texture;
 
 function loadScene() {
@@ -87,8 +88,9 @@ function loadScene() {
   console.log(transf1[2], transf2[2], transf3[2], transf4[2]);
   console.log(transf1[3], transf2[3], transf3[3], transf4[3]);
 
-  testTex = new Texture('../resources/fbmRep1.png', 0);
-  testTex2 = new Texture('../resources/rain.png', 1);
+  splashTex1 = new Texture('../resources/splash1.png', 0);
+  splashTex2 = new Texture('../resources/splash2.png', 0);
+  testTex2 = new Texture('../resources/rain2.png', 1);
 }
 
 function main() {
@@ -122,7 +124,7 @@ function main() {
 
   const renderer = new OpenGLRenderer(canvas);
   renderer.setClearColor(0.2, 0.2, 0.2, 1);
-  //gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.ONE, gl.ONE); // Additive blending
 
@@ -136,9 +138,11 @@ function main() {
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/flat-frag.glsl')),
   ]);
 
-  instancedShader.bindTexToUnit(instancedShader.unifSampler1, testTex, 0);
+  instancedShader.bindTexToUnit(instancedShader.unifSampler1, splashTex1, 0);
+  instancedShader.bindTexToUnit(instancedShader.unifSampler3, splashTex2, 2);
   instancedShader.bindTexToUnit(instancedShader.unifSampler2, testTex2, 1);
-  flat.bindTexToUnit(flat.unifSampler1, testTex, 0);
+  flat.bindTexToUnit(flat.unifSampler1, splashTex1, 0);
+  flat.bindTexToUnit(flat.unifSampler3, splashTex2, 2);
   flat.bindTexToUnit(flat.unifSampler2, testTex2, 1);
 
   // This function will be called every frame
