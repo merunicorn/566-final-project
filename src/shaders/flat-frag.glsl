@@ -175,30 +175,23 @@ vec3 rot_op(vec3 r, vec3 p) {
 
 // SDF FUNCTION
 float pedestalSDF(vec3 p) {
-  // BASE
-  // translate to make pedestal layering
-  vec3 t_cyl = vec3(0.0, 3.5, 0.0);
-  vec3 t_b2 = vec3(0.0, -0.1, 0.0);
-  vec3 t_b3 = vec3(0.0, -0.2, 0.0);
-  vec3 p_b2 = trans_pt(p, t_b2);
-  vec3 p_b3 = trans_pt(p, t_b3);
+  // SPHERE 
+  vec3 t_sph = vec3(0.0, 2.1, 5.0);
+  vec3 p_sph = trans_pt(p, t_sph);
 
-  // translate entire pedestal down
-  vec3 p_b1 = trans_pt(p, t_cyl);
-  p_b2 = trans_pt(p_b2, t_cyl);
-  p_b3 = trans_pt(p_b3, t_cyl);
+  // BOX 
+  vec3 t_box = vec3(0.0, 6.0, 5.0);
+  vec3 p_box = trans_pt(p, t_box);
 
-  // cylinder SDFs
-  float base1 = sdf_cylin(p_b1, vec2(1.6, 0.07));
-  float base2 = sdf_cylin(p_b2, vec2(1.4, 0.07));
-  float base3 = sdf_cylin(p_b3, vec2(1.2, 0.07));
+  // SPHERE SDFs
+  float sph = sdf_sphere(p_sph, 3.5); // radius
+  float box = sdf_box(p_box, vec3(4.0)); // l,w,h 
 
-  // combine shapes
-  float dist_base = union_op(base1, base2);
-  dist_base = union_op(dist_base, base3);
+  // COMBINE SHAPES 
+  float dist = sect_op(sph, box);
 
-  float dist = dist_base;
-
+  // RETURN DIST 
+  // float dist = sph;
   return dist;
 }
 
@@ -252,9 +245,9 @@ void main() {
   vec4 s = vec4(-1.0 * (((gl_FragCoord.x / u_Dimensions.x) * 2.0) - 1.0),
                 -1.0 * (1.0 - ((gl_FragCoord.y / u_Dimensions.y) * 2.0)), 1.0, 1.0);
   vec3 dir = rayCast(s);
+  // out_Col = vec4(vec3(0.5 * (dir + vec3(1.0, 1.0, 1.0))), 1.0);
 
   // RAYMARCHING
-  // ray march
     vec2 march = rayMarch(u_Eye, dir);
     if (march[0] < 1000.0) {
       vec4 diffuseColor;

@@ -78,9 +78,14 @@ function loadScene() {
                             f10[0], f10[1], f10[2], f10[3],
                             f11[0], f11[1], f11[2], f11[3],
                             f12[0], f12[1], f12[2], f12[3]);                          
-  console.log(fallmat);
-  console.log(fallmat2);
-  console.log(fallmat3);
+  //console.log(fallmat);
+  //console.log(fallmat2);
+  //console.log(fallmat3);
+  console.log("point 1 transformation matrix: ");
+  console.log(transf1[0], transf2[0], transf3[0], transf4[0]);
+  console.log(transf1[1], transf2[1], transf3[1], transf4[1]);
+  console.log(transf1[2], transf2[2], transf3[2], transf4[2]);
+  console.log(transf1[3], transf2[3], transf3[3], transf4[3]);
 
   testTex = new Texture('../resources/fbmRep1.png', 0);
   testTex2 = new Texture('../resources/rain.png', 1);
@@ -111,11 +116,13 @@ function main() {
   // Initial call to load scene
   loadScene();
 
-  const camera = new Camera(vec3.fromValues(50, 50, 50), vec3.fromValues(0, 0, 0));
+  //const camera = new Camera(vec3.fromValues(50, 50, 50), vec3.fromValues(0, 0, 0));
+  const camera = new Camera(vec3.fromValues(0, 0, -20), vec3.fromValues(0, 0, 5.0));
+  
 
   const renderer = new OpenGLRenderer(canvas);
   renderer.setClearColor(0.2, 0.2, 0.2, 1);
-  gl.enable(gl.DEPTH_TEST);
+  //gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.BLEND);
   gl.blendFunc(gl.ONE, gl.ONE); // Additive blending
 

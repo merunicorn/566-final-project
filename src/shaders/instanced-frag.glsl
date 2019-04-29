@@ -25,17 +25,4 @@ void main()
 
     vec2 uv = fs_UVtex;
     out_Col = texture(u_TestTex2, uv);
-
-    if (out_Col == vec4(1.0, 1.0, 1.0, 1.0)) {
-      out_Col = vec4(1.0, 1.0, 1.0, 0.0);
-    }
-
-    /*
-    vec3 coreColor = vec3(150.0, 255.0, 247.0) / 255.0 * mix(0.0, 1.0, resampledTexture.g);
-    vec3 outerColor = vec3(0.0, 255.0, 210.0) / 255.0 * mix(0.0, 1.0, resampledTexture.r);
-    vec3 noColor = vec3(0.0, 0.0, 50.0) / 255.0 * mix(0.0, 1.0, resampledTexture.b);
-
-    out_Col = vec4(coreColor + outerColor + noColor, 1.0);
-    out_Col.rgb = mix(out_Col.rgb, noColor, step(uv.x, 0.1));
-    out_Col.rgb = mix(out_Col.rgb, noColor, step(0.9, uv.x));*/
 }

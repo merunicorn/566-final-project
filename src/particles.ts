@@ -26,7 +26,7 @@ class Particle {
         // drag = true: acceleration taken into account
         // drag = false: constant velocity (mimics the range of rain we
         //               see looking constant since start point is so high up)
-        var drag = false; 
+        var drag = true; 
         if (drag) {
             this.velf = -10.0;
             this.posf = this.posi + this.velf * deltat;
@@ -38,7 +38,7 @@ class Particle {
 
         // respawn at top if hits some 'ground' value
         if (this.posf < -10) { // 'ground' value / min height
-            this.posf = 10; // 'sky' value / max height
+            this.posf = 15; // 'sky' value / max height
             if (!drag) {
                 this.velf = 0; // reset velocity since particle has totally reset
             }

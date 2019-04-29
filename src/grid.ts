@@ -17,7 +17,7 @@ class Grid {
         for (var i = 0; i < this.width; i++) {
             this.grid[i] = [];
             for (var j = 0; j < this.height; j++) {
-                this.grid[i][j] = new Particle(10);
+                this.grid[i][j] = new Particle(15);
             }
         }
     }
@@ -49,6 +49,7 @@ class Grid {
 
                 //t4Array.push(i);
                 t4Array.push((i - this.width / 2)); // x transformation
+                console.log(i - this.width/2, j - this.height/2);
                 t4Array.push(10); // y transformation
                 //t4Array.push(j);
                 t4Array.push((j - this.height / 2)); // z transformation

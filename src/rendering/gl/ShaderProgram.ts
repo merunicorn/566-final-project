@@ -84,6 +84,7 @@ class ShaderProgram {
     this.unifEye   = gl.getUniformLocation(this.prog, "u_Eye");
     this.unifRef   = gl.getUniformLocation(this.prog, "u_Ref");
     this.unifUp   = gl.getUniformLocation(this.prog, "u_Up");
+    this.unifDimensions   = gl.getUniformLocation(this.prog, "u_Dimensions");
 
     this.unifFall = gl.getUniformLocation(this.prog, "u_Fall1");
     this.unifFall2 = gl.getUniformLocation(this.prog, "u_Fall2");
