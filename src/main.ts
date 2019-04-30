@@ -8,8 +8,6 @@ import Camera from './Camera';
 import {setGL} from './globals';
 import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 import Texture from './rendering/gl/Texture';
-import {readTextFile} from './globals';
-import Mesh from './geometry/Mesh';
 
 import Particle from './particles';
 import Grid from './grid';
@@ -33,10 +31,6 @@ let splashTex1: Texture;
 let splashTex2: Texture;
 let testTex2: Texture;
 let cobbleTex: Texture;
-let soilTex: Texture;
-
-// MESHES
-//let meshDog: Mesh;
 
 function loadScene() {
   square = new Square();
@@ -51,8 +45,6 @@ function loadScene() {
   let pVBO = g.setPosVBO();
   let p: Float32Array = new Float32Array(pVBO.posArray);
 
-  console.log("p:" + p);
-
   let transf1: Float32Array = new Float32Array(gVBO.transf1Array);
   let transf2: Float32Array = new Float32Array(gVBO.transf2Array);
   let transf3: Float32Array = new Float32Array(gVBO.transf3Array);
@@ -61,7 +53,7 @@ function loadScene() {
   square.setNumInstances(w*w); // grid of "particles"
   square.setInstanceVBOs(p, transf1, transf2, transf3, transf4);
 
-  let r = 24.0; // changes speed ??
+  let r = 24.0; // changes speed
   let fVBO = g.setFallVBO(r);
   let f1 = fVBO.f1Array;
   let f2 = fVBO.f2Array;
@@ -87,27 +79,11 @@ function loadScene() {
                             f10[0], f10[1], f10[2], f10[3],
                             f11[0], f11[1], f11[2], f11[3],
                             f12[0], f12[1], f12[2], f12[3]);                          
-  //console.log(fallmat);
-  //console.log(fallmat2);
-  //console.log(fallmat3);
-  console.log("point 1 transformation matrix: ");
-  console.log(transf1[0], transf2[0], transf3[0], transf4[0]);
-  console.log(transf1[1], transf2[1], transf3[1], transf4[1]);
-  console.log(transf1[2], transf2[2], transf3[2], transf4[2]);
-  console.log(transf1[3], transf2[3], transf3[3], transf4[3]);
 
-  splashTex1 = new Texture('../resources/splash1.png', 0);
-  splashTex2 = new Texture('../resources/splash2.png', 0);
-  testTex2 = new Texture('../resources/rain2.png', 1);
-  cobbleTex = new Texture('../resources/cobblestone.png', 2);
-  soilTex = new Texture('../resources/soil.png', 3);
-
-  // BUILD MESHES
-  /*
-  meshDog = new Mesh(readTextFile('../resources/obj/Dachshund.obj'), vec3.fromValues(0,0,0));
-  meshDog.create();
-  meshDog.setNumInstances(w*w); // grid of "particles"
-  meshDog.setInstanceVBOs(p, transf1, transf2, transf3, transf4);*/
+  splashTex1 = new Texture('../textures/splash1.png', 0);
+  splashTex2 = new Texture('../textures/splash2.png', 0);
+  testTex2 = new Texture('../textures/rain2.png', 1);
+  cobbleTex = new Texture('../textures/rain2.png', 2);
 }
 
 function main() {
@@ -158,12 +134,10 @@ function main() {
   instancedShader.bindTexToUnit(instancedShader.unifSampler1, splashTex1, 0);
   instancedShader.bindTexToUnit(instancedShader.unifSampler3, splashTex2, 2);
   instancedShader.bindTexToUnit(instancedShader.unifSampler2, testTex2, 1);
-  instancedShader.bindTexToUnit(instancedShader.unifSampler4, cobbleTex, 3);
   flat.bindTexToUnit(flat.unifSampler1, splashTex1, 0);
   flat.bindTexToUnit(flat.unifSampler3, splashTex2, 2);
   flat.bindTexToUnit(flat.unifSampler2, testTex2, 1);
   flat.bindTexToUnit(flat.unifSampler4, cobbleTex, 3);
-  flat.bindTexToUnit(flat.unifSampler5, soilTex, 4);
 
   // This function will be called every frame
   function tick() {

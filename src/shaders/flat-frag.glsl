@@ -7,9 +7,6 @@ uniform float u_Time;
 
 uniform sampler2D u_SplashTex1;
 uniform sampler2D u_SplashTex2;
-uniform sampler2D u_TestTex2;
-uniform sampler2D u_CobbleTex;
-uniform sampler2D u_SoilTex;
 
 in vec2 fs_Pos;
 in vec2 fs_UV;
@@ -95,6 +92,7 @@ vec2 random2(vec2 p, vec2 seed) {
   return fract(sin(vec2(dot(p + seed, vec2(311.7, 127.1)), dot(p + seed, vec2(269.5, 183.3)))) * 85734.3545);
 }
 
+// ADAM'S CODE
 vec3 remapColor(vec3 c, float offset, float seed) {
     float ro = random1(seed) * offset;
     float go = random1(seed + 31242.134) * offset;
@@ -139,6 +137,39 @@ vec2 fbm(vec2 uv) {
     return sum / maxSum;
 }
 
+// SHADERTOY 
+vec2 hash( vec2 p ) {
+	p = vec2(dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)));
+	return -1.0 + 2.0*fract(sin(p)*43758.5453123);
+}
+
+// SHADERTOY 
+float noise( in vec2 p ) {
+      float K1 = 0.366025404; // (sqrt(3)-1)/2;
+      float K2 = 0.211324865; // (3-sqrt(3))/6;
+	vec2 i = floor(p + (p.x+p.y)*K1);	
+    vec2 a = p - i + (i.x+i.y)*K2;
+    vec2 o = (a.x>a.y) ? vec2(1.0,0.0) : vec2(0.0,1.0); //vec2 of = 0.5 + 0.5*vec2(sign(a.x-a.y), sign(a.y-a.x));
+    vec2 b = a - o + K2;
+	vec2 c = a - 1.0 + 2.0*K2;
+    vec3 h = max(0.5-vec3(dot(a,a), dot(b,b), dot(c,c) ), 0.0 );
+	vec3 n = h*h*h*h*vec3( dot(a,hash(i+0.0)), dot(b,hash(i+o)), dot(c,hash(i+1.0)));
+    return dot(n, vec3(70.0));	
+}
+ 
+// SHADERTOY
+float fbm_float(vec2 n) {
+	float total = 0.0, amplitude = 0.1;
+  mat2 m = mat2( 1.6,  1.2, -1.2,  1.6 );
+	for (int i = 0; i < 7; i++) {
+		total += noise(n) * amplitude;
+		n = m * n;
+		amplitude *= 0.4;
+	}
+	return total;
+}
+
+// ADAM'S CODE 
 float WorleyNoise(vec2 uv) {
     // Tile the space
     vec2 uvInt = floor(uv);
@@ -291,23 +322,18 @@ float soilSDF(vec3 p) {
   // BOX 
   vec3 t_box = vec3(0.0, 6.0, 5.0);
   vec3 p_box = trans_pt(p, t_box);
-  vec3 t_b2 = vec3(0.0, -1.5, 5.0);
-  vec3 p_b2 = trans_pt(p, t_b2);
 
   // SDFs
   float sph = sdf_sphere(p_sph, 3.5); // radius
   float box = sdf_box(p_box, vec3(4.0)); // l,w,h 
-  float b2 = sdf_box(p_b2, vec3(4.0)); // l,w,h 
 
   // COMBINE SHAPES 
   float dist = sect_op(sph, box);
-  //float dist2 = sect_op(dist, b2);
 
-  // apply worley noise for water effect
+  // set up worley noise var
   worl = WorleyNoise(5.0 * p.xz);
 
   // RETURN DIST 
-  //dist = dist2;
   return dist;
 }
 
@@ -315,12 +341,8 @@ float citySDF(vec3 p) {
   // PARAMETERS
   float size = 0.4;
   float size2 = 0.6;
-
   float size3 = 0.2;
   float size4 = 0.07;
-  // SPHERE 
-  vec3 t_sph = vec3(0.0, 2.1, 5.0);
-  vec3 p_sph = trans_pt(p, t_sph);
 
   // BOX 
   vec3 t_box = vec3(0.0, 1.0, 3.0);
@@ -352,7 +374,6 @@ float citySDF(vec3 p) {
   vec3 p_b8 = trans_pt(p, t_b8);
 
   // SDFs
-  float sph = sdf_sphere(p_sph, 3.5); // radius
   float box = sdf_box(p_box, vec3(size,3.0,size)); // w,h,l 
   float b1a = sdf_box(p_b1a, vec3(size3,3.0,size3)); // w,h,l 
   float b1b = sdf_box(p_b1b, vec3(size4,3.0,size4)); // w,h,l 
@@ -509,6 +530,7 @@ bool rayBoxIntersection(vec3 origin, vec3 dir, vec3 min, vec3 max) {
   }
 }
 
+// REFERENCED FROM BOOK OF SHADERS
 vec2 brickTile(vec2 _st, float _zoom, float offset){
     _st *= _zoom;
 
@@ -519,11 +541,92 @@ vec2 brickTile(vec2 _st, float _zoom, float offset){
     return fract(_st);
 }
 
-float box(vec2 _st, vec2 _size){
+// REFERENCED FROM BOOK OF SHADERS
+float box(vec2 _st, vec2 _size) {
     _size = vec2(0.5)-_size*0.4;
     vec2 uv = smoothstep(_size,_size+vec2(1e-4),_st);
     uv *= smoothstep(_size,_size+vec2(1e-4),vec2(1.0)-_st);
     return uv.x*uv.y;
+}
+
+// CODE FROM SHADERTOY 
+vec4 cloudFxn() {
+    float cloudscale = 1.1;
+    float speed = 0.0005;
+    float clouddark = 0.5;
+    float cloudlight = 0.5;
+    float cloudcover = 0.05;
+    float cloudalpha = 5.0;
+    float skytint = 1.5;
+    vec3 skycolour1 = colorFxn(vec3(81.0, 70.0, 99.0));
+    vec3 skycolour2 = colorFxn(vec3(77.0, 83.0, 130.0));
+    float time = u_Time * speed;
+
+    mat2 m = mat2( 1.6,  1.2, -1.2,  1.6 );
+    vec2 p = gl_FragCoord.xy / u_Dimensions.xy;
+	  vec2 uv = p*vec2(u_Dimensions.x/u_Dimensions.y,1.0);    
+    float q = fbm_float(uv * cloudscale * 0.5);
+    
+    //ridged noise shape
+	  float r = 0.0;
+	  uv *= cloudscale;
+    uv -= q;
+    float weight = 0.8;
+    for (int i=0; i<8; i++){
+		  r += abs(weight*noise( uv ));
+      uv = m*uv;
+		  weight *= 0.7;
+    }
+    
+    //noise shape
+    float f = 0.0;
+    uv = p * vec2(u_Dimensions.x/u_Dimensions.y,1.0);
+    uv *= cloudscale;
+    uv -= q;
+    weight = 0.7;
+    for (int i = 0; i < 8; i++){
+      f += weight * noise(uv);
+      uv = m*uv;
+      weight *= 0.6;
+    }
+      
+    f *= r + f;
+
+    //noise colour
+    float c = 0.0;
+    time = u_Time * speed;
+    uv = p*vec2(u_Dimensions.x/u_Dimensions.y,1.0);
+	  uv *= cloudscale*2.0;
+    uv -= q - time;
+    weight = 0.4;
+    for (int i=0; i<7; i++){
+		c += weight*noise( uv );
+        uv = m*uv + time;
+		weight *= 0.6;
+    }
+    
+    //noise ridge colour
+    float c1 = 0.0;
+    time = u_Time * speed;
+    uv = p*vec2(u_Dimensions.x/u_Dimensions.y,1.0);
+	  uv *= cloudscale*3.0;
+    uv -= q - time;
+    weight = 0.4;
+    for (int i=0; i<7; i++){
+		c1 += abs(weight*noise( uv ));
+        uv = m*uv + time;
+		weight *= 0.6;
+    }
+	
+    c += c1;
+    
+    vec3 skycolour = mix(skycolour2, skycolour1, p.y);
+    vec3 cloudcolour = vec3(0.7, 0.7, 0.5) * clamp((clouddark + cloudlight*c), 0.0, 1.0);
+   
+    f = cloudcover + cloudalpha*f*r;
+    
+    vec3 result = mix(skycolour, clamp(skytint * skycolour + cloudcolour, 0.0, 1.0), clamp(f + c, 0.0, 1.0));
+    return vec4(result, 1.0);
 }
 
 void main() {
@@ -541,17 +644,12 @@ void main() {
 
   if (bound_test) {
     // in root bounding box
-  // RAYMARCHING
+    // RAYMARCHING
     vec2 march = rayMarch(u_Eye, dir);
     if (march[0] < 1000.0) {
       vec4 diffuseColor;
       if (march[1] == 1.0) {
         // hit pedestal
-        // diffuseColor = vec4(colorFxn(vec3(185.0, 230.0, 243.0)), 1.0);
-
-        // diffuseColor = vec4(colorFxn(vec3(2.0, 27.0, 38.0)), 1.0);
-        // diffuseColor = texture(u_CobbleTex, fs_UV);
-        
         vec2 st = gl_FragCoord.xy / u_Dimensions.xy;
         vec3 color = vec3(0.0);
         st /= vec2(2.15,0.85) / 1.5;
@@ -566,18 +664,8 @@ void main() {
         
       }
       else if (march[1] == 2.0) {
-        // hit soil
-        diffuseColor = vec4(colorFxn(vec3(2.0, 27.0, 38.0)), 1.0);
-        diffuseColor = vec4(colorFxn(vec3(240.0, 152.0, 198.0)), 1.0);
-        // diffuseColor = texture(u_SoilTex, fs_UV);
-
-        float water_noise = clamp(WorleyNoise(vec2(march)), 0.0, 1.0);
-        diffuseColor = vec4(smoothstepPow(vec3(diffuseColor), water_noise * 0.2), 1.0);
-
+        // hit sphere
         vec2 st = vec2(worl);
-        //vec2 st = gl_FragCoord.xy / u_Dimensions.xy;
-        //st = fbm(st);
-        //st *= st;
         st = fbm(st + fbm(st + fbm(st + fbm(st))));
         st *= st;
         st += st;
@@ -594,33 +682,17 @@ void main() {
         else {
           diffuseColor = vec4(colorFxn(vec3(160.0, 152.0, 198.0)), 1.0);
         }
-        // diffuseColor =  vec4(worl) * vec4(worl) * vec4(worl) / 5.0;
-        // diffuseColor += vec4(colorFxn(vec3(160.0, 84.0, 40.0)), 1.0);
-
-        // diffuseColor = vec4(colorFxn(vec3(81.0, 37.0, 21.0)), 1.0);
-        /*float y = 0.1;
-        float x = clamp(worl, 0.0, y);
-        if (x == y) {
-          diffuseColor = vec4(colorFxn(vec3(81.0, 37.0, 21.0)),1.0);
-        }
-        else {
-          diffuseColor = vec4(colorFxn(vec3(160.0, 84.0, 40.0)),1.0);
-        }*/
       } 
       else if (march[1] == 3.0) {
         // hit city
-        // diffuseColor = vec4(vec3(0.0),1.0);
-
         vec2 st = gl_FragCoord.xy / u_Dimensions.xy;
         vec3 color = vec3(0.0);
         st = brickTile(st, 80.0, 0.0);
         color = vec3(box(st,vec2(0.5)));
         if (color[0] < 0.5) {
-          // diffuseColor = vec4(vec3(0.3),1.0);
           diffuseColor = vec4(vec3(0.0),1.0);
         }
         else {
-          // diffuseColor = vec4(colorFxn(vec3(233.0, 190.0, 175.0)), 1.0);
           diffuseColor = vec4(colorFxn(vec3(240.0, 152.0, 198.0)), 1.0);
         }
       }       
@@ -628,10 +700,6 @@ void main() {
       // LIGHTING
       
       if (march[1] == 1.0 || march[1] == 2.0) { // if matches specific SDF id
-        //vec4 lights[4];
-        //vec3 lightColor[4];
-        //vec4 lights[2];
-        //vec3 lightColor[2];
         vec4 lights[3];
         vec3 lightColor[3];
 
@@ -639,16 +707,13 @@ void main() {
         lights[0] = vec4(6.0, 3.0, 5.0, 2.0); // key light
         lights[1] = vec4(-6.0, 3.0, 5.0, 1.5); // fill light
         lights[2] = vec4(0.0, 15.0, 5.0, 1.0);
-        // lights[2] = vec4(vec3(light), 0.5);
         
         lightColor[0] = colorFxn(vec3(120.0, 87.0, 219.0));
         lightColor[1] = colorFxn(vec3(255.0, 147.0, 207.0));
         lightColor[2] = colorFxn(vec3(150.0, 173.0, 255.0));
-        //lightColor[2] = vec3(1.0);
 
         vec3 sum = vec3(0.0);
         for (int j = 0; j < 3; j++) {
-        //for (int j = 0; j < 4; j++) {
           // Calculate diffuse term for shading
           float diffuseTerm = dot(normalize(nor), normalize(vec3(lights[j])));
           // Avoid negative lighting values
@@ -659,7 +724,6 @@ void main() {
           // Implement specular light
           vec4 H;
           for (int i = 0; i < 3; i++) {
-          //for (int i = 0; i < 4; i++) {
             H[i] = (lights[j][i] + u_Eye[i]) / 2.0;
           }
           float specularIntensity = max(pow(dot(normalize(H), normalize(vec4(nor,1.0))), 1.5), 0.0);
@@ -669,30 +733,19 @@ void main() {
           diffuseColor *= softShadow(dir, vec3(lights[j]), 1.5, 4.0);
           sum += mater * diffuseColor.rgb * (lights[j].w + specularIntensity);
         }
-        // out_Col = vec4((sum / 4.0), 1.0);
         out_Col = vec4((sum / 3.0), 1.0);
       }
       else {
         out_Col = diffuseColor;
       }
-      
-      //out_Col = diffuseColor;
     }
     else {
       // bg color
-      out_Col = vec4(colorFxn(vec3(27.0, 26.0, 68.0)), 1.0);
-      // out_Col = vec4(0.5 * (fs_Pos + vec2(1.0)), 0.0, 1.0);
+      out_Col = cloudFxn();
     }
   }
   else {
     // bg color
-    out_Col = vec4(colorFxn(vec3(27.0, 26.0, 68.0)), 1.0);
-    // out_Col = vec4(colorFxn(vec3(2.0, 27.0, 38.0)), 1.0);
+    out_Col = cloudFxn();
   }
-
-  // COLOR
-  // out_Col = vec4(0.5 * (fs_Pos + vec2(1.0)), 0.0, 1.0);
-
-  //vec2 uv = fs_UV;
-  //out_Col = texture(u_TestTex, uv);
 }

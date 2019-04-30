@@ -11,7 +11,6 @@ uniform vec2 u_Dimensions;
 uniform sampler2D u_SplashTex1;
 uniform sampler2D u_SplashTex2;
 uniform sampler2D u_TestTex2;
-uniform sampler2D u_CobbleTex;
 
 in float fs_Splash;
 
@@ -20,10 +19,7 @@ vec3 colorFxn(vec3 col) {
 }
 
 void main()
-{
-    //float dist = 1.0 - (length(fs_Pos.xyz) * 2.0);
-    //out_Col = vec4(dist) * fs_Col;
-    
+{    
     vec3 c = vec3(170.0, 233.0, 237.0);
     out_Col = vec4(colorFxn(c), 1.0);
 
@@ -35,10 +31,6 @@ void main()
     }
     if (fs_Splash == 2.0) {
         texCol = texture(u_SplashTex2, uv);
-    }
-    // TEMP USE FS-SPLASH AS MARKER FOR WHICH DROP
-    if (fs_Splash == 3.0) {
-      texCol = texture(u_CobbleTex, uv);
     }
     if (texCol[3] < 0.1) {
       discard; // gets rid of transparent fragments

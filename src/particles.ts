@@ -16,7 +16,7 @@ class Particle {
 
         this.posf = p; 
         this.velf = 0;
-        this.accel = -9.8; // gravity in m/s^2; currently not normalized for our dimensions
+        this.accel = -9.8; // gravity
     }
 
     getNewPos(deltat: number) {
@@ -24,8 +24,6 @@ class Particle {
         // equation of motion
 
         // drag = true: acceleration taken into account
-        // drag = false: constant velocity (mimics the range of rain we
-        //               see looking constant since start point is so high up)
         var drag = true; 
         if (drag) {
             this.velf = -10.0;

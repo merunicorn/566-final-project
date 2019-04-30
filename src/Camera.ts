@@ -1,8 +1,6 @@
-//var CameraControls = require('3d-view-controls');
 import {vec3, mat4} from 'gl-matrix';
 
 class Camera {
-  //controls: any;
   projectionMatrix: mat4 = mat4.create();
   viewMatrix: mat4 = mat4.create();
   fovy: number = 45;
@@ -20,21 +18,13 @@ class Camera {
     const canvas = <HTMLCanvasElement> document.getElementById('canvas');
     
     this.up = vec3.fromValues(0,1,0);
-    /*this.controls = CameraControls(canvas, {
-      eye: position,
-      center: target,
-    });*/
 
     vec3.add(this.target, this.position, this.direction);
-    //mat4.lookAt(this.viewMatrix, this.controls.eye, this.controls.center, this.controls.up);
-    // mat4.lookAt(this.viewMatrix, this.position, this.target, this.up);
     mat4.lookAt(this.viewMatrix, vec3.fromValues(0,0,-20), vec3.fromValues(0,0,5.0), vec3.fromValues(0,1,0));
 
-    //vec3.subtract(this.forward, this.target, this.position);
     vec3.subtract(this.forward, vec3.fromValues(0,0,5.0), vec3.fromValues(0,0,-20));
     vec3.normalize(this.forward, this.forward);
     vec3.cross(this.right, this.forward, vec3.fromValues(0,1,0));
-    //vec3.cross(this.right, this.forward, this.up);
     vec3.normalize(this.right, this.right);
   }
 
@@ -47,12 +37,7 @@ class Camera {
   }
 
   update() {
-    //this.controls.tick();
-
     vec3.add(this.target, this.position, this.direction);
-
-    // mat4.lookAt(this.viewMatrix, this.controls.eye, this.controls.center, this.controls.up);
-    // mat4.lookAt(this.viewMatrix, this.position, this.target, this.up);
     mat4.lookAt(this.viewMatrix, vec3.fromValues(0,0,-20), vec3.fromValues(0,0,5.0), vec3.fromValues(0,1,0));
   }
 };

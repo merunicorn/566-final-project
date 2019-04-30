@@ -47,11 +47,8 @@ class Grid {
                 t3Array.push(Math.cos(rad));
                 t3Array.push(0);
 
-                //t4Array.push(i);
                 t4Array.push((i - this.width / 2)); // x transformation
-                console.log(i - this.width/2, j - this.height/2);
                 t4Array.push(10); // y transformation
-                //t4Array.push(j);
                 t4Array.push((j - this.height / 2)); // z transformation
                 t4Array.push(1);
             }
@@ -125,19 +122,6 @@ class Grid {
         for (var k = 0; k < 4; k++) {
             f12Array.push(this.grid[0][0].getNewPos(1.0 / r));
         }
-
-        console.log("f1:" + f1Array);
-        console.log("f2:" + f2Array);
-        console.log("f3:" + f3Array);
-        console.log("f4:" + f4Array);
-        console.log("f5:" + f5Array);
-        console.log("f6:" + f6Array);
-        console.log("f7:" + f7Array);
-        console.log("f8:" + f8Array);
-        console.log("f9:" + f9Array);
-        console.log("f10:" + f10Array);
-        console.log("f11:" + f11Array);
-        console.log("f12:" + f12Array);
 
         let f1: Float32Array = new Float32Array(f1Array);
         let f2: Float32Array = new Float32Array(f2Array);
