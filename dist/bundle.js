@@ -5365,10 +5365,10 @@ function loadScene() {
     fallmat = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* mat4 */].fromValues(f1[0], f1[1], f1[2], f1[3], f2[0], f2[1], f2[2], f2[3], f3[0], f3[1], f3[2], f3[3], f4[0], f4[1], f4[2], f4[3]);
     fallmat2 = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* mat4 */].fromValues(f5[0], f5[1], f5[2], f5[3], f6[0], f6[1], f6[2], f6[3], f7[0], f7[1], f7[2], f7[3], f8[0], f8[1], f8[2], f8[3]);
     fallmat3 = __WEBPACK_IMPORTED_MODULE_0_gl_matrix__["b" /* mat4 */].fromValues(f9[0], f9[1], f9[2], f9[3], f10[0], f10[1], f10[2], f10[3], f11[0], f11[1], f11[2], f11[3], f12[0], f12[1], f12[2], f12[3]);
-    splashTex1 = new __WEBPACK_IMPORTED_MODULE_9__rendering_gl_Texture__["a" /* default */]('https://raw.githubusercontent.com/merunicorn/566-final-project/master/src/splash1.png', 0);
-    splashTex2 = new __WEBPACK_IMPORTED_MODULE_9__rendering_gl_Texture__["a" /* default */]('https://raw.githubusercontent.com/merunicorn/566-final-project/master/src/splash2.png', 0);
-    testTex2 = new __WEBPACK_IMPORTED_MODULE_9__rendering_gl_Texture__["a" /* default */]('https://raw.githubusercontent.com/merunicorn/566-final-project/master/src/rain2.png', 1);
-    cobbleTex = new __WEBPACK_IMPORTED_MODULE_9__rendering_gl_Texture__["a" /* default */]('https://raw.githubusercontent.com/merunicorn/566-final-project/master/src/rain2.png', 2);
+    splashTex1 = new __WEBPACK_IMPORTED_MODULE_9__rendering_gl_Texture__["a" /* default */]('https://raw.githubusercontent.com/merunicorn/566-final-project/master/splash1.png', 0);
+    splashTex2 = new __WEBPACK_IMPORTED_MODULE_9__rendering_gl_Texture__["a" /* default */]('https://raw.githubusercontent.com/merunicorn/566-final-project/master/splash2.png', 0);
+    testTex2 = new __WEBPACK_IMPORTED_MODULE_9__rendering_gl_Texture__["a" /* default */]('https://raw.githubusercontent.com/merunicorn/566-final-project/master/rain2.png', 1);
+    cobbleTex = new __WEBPACK_IMPORTED_MODULE_9__rendering_gl_Texture__["a" /* default */]('https://raw.githubusercontent.com/merunicorn/566-final-project/master/rain2.png', 2);
 }
 function main() {
     // Initial display for framerate

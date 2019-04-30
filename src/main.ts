@@ -80,10 +80,10 @@ function loadScene() {
                             f11[0], f11[1], f11[2], f11[3],
                             f12[0], f12[1], f12[2], f12[3]);                          
 
-  splashTex1 = new Texture('https://raw.githubusercontent.com/merunicorn/566-final-project/master/src/splash1.png', 0);
-  splashTex2 = new Texture('https://raw.githubusercontent.com/merunicorn/566-final-project/master/src/splash2.png', 0);
-  testTex2 = new Texture('https://raw.githubusercontent.com/merunicorn/566-final-project/master/src/rain2.png', 1);
-  cobbleTex = new Texture('https://raw.githubusercontent.com/merunicorn/566-final-project/master/src/rain2.png', 2);
+  splashTex1 = new Texture('https://raw.githubusercontent.com/merunicorn/566-final-project/master/splash1.png', 0);
+  splashTex2 = new Texture('https://raw.githubusercontent.com/merunicorn/566-final-project/master/splash2.png', 0);
+  testTex2 = new Texture('https://raw.githubusercontent.com/merunicorn/566-final-project/master/rain2.png', 1);
+  cobbleTex = new Texture('https://raw.githubusercontent.com/merunicorn/566-final-project/master/rain2.png', 2);
 }
 
 function main() {
