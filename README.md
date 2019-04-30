@@ -24,36 +24,36 @@
   - I take u_Time mod 48 (since 48 is the number of frames), then add to this value the position offset (vs_Col)
   - Where the value is x, I let the xth value in the fall position mat4s be the new y value.
 - __Depth Map__
-- Also in the instanced vertex shader, I hardcoded in a depth map
-- Based off the x/z values of the rain particle, I can determine when the particle would collide with geometry
-- I can thus set different particles in different locations to "collide" at different heights, as if they are interacting with the SDF buildings
-- I also make sure to not render raindrops past the height of a building if it's z value is behind that of a building (in other words, this ensures that we cannot see raindrops through buildings)
+  - Also in the instanced vertex shader, I hardcoded in a depth map
+  - Based off the x/z values of the rain particle, I can determine when the particle would collide with geometry
+  - I can thus set different particles in different locations to "collide" at different heights, as if they are interacting with the SDF buildings
+  - I also make sure to not render raindrops past the height of a building if it's z value is behind that of a building (in other words, this ensures that we cannot see raindrops through buildings)
 - __Camera__
-- I disabled camera controls, hard-coding in the values for position/eye, center/target, and up
+  - I disabled camera controls, hard-coding in the values for position/eye, center/target, and up
 - __Textures__
-- REFERENCED: Adam's Texture Demo
-- I imported in textures I made for the rain drop, and two different textures for the splash.
-- In the instanced shader, the texture switches to the second splash texture after 2 frames, then will stop rendering after another two frames; this simulates the animation of a splash
-- Rain and splash textures are rendered on an instance of a square
-- In the instanced fragment shader, I read in the texture (UVs set up in vertex and passed to fragment)
-- Alpha check to discard transparent fragments, so square outline is not visible
+  - REFERENCED: Adam's Texture Demo
+  - I imported in textures I made for the rain drop, and two different textures for the splash.
+  - In the instanced shader, the texture switches to the second splash texture after 2 frames, then will stop rendering after another two frames; this simulates the animation of a splash
+  - Rain and splash textures are rendered on an instance of a square
+  - In the instanced fragment shader, I read in the texture (UVs set up in vertex and passed to fragment)
+  - Alpha check to discard transparent fragments, so square outline is not visible
 - __Procedural Textures__
-- REFERENCED: Book of Shaders Demo (https://thebookofshaders.com/09/)
-- Created a procedural square texture to use on the buildings
-- Edited to use as a "cobblestone"-like texture on the top of the half sphere/ground
-- REFERENCED: Old Homeworks/Adam's FBM, Worley Noise
-- I also used FBM and Worley Noise to add a subtle texture to the half-sphere
-- REFERENCED: Shader Toy 2d Clouds (https://www.shadertoy.com/view/4tdSWr)
-- Used code found on ShaderToy for the animated cloud background
+  - REFERENCED: Book of Shaders Demo (https://thebookofshaders.com/09/)
+  - Created a procedural square texture to use on the buildings
+  - Edited to use as a "cobblestone"-like texture on the top of the half sphere/ground
+  - REFERENCED: Old Homeworks/Adam's FBM, Worley Noise
+  - I also used FBM and Worley Noise to add a subtle texture to the half-sphere
+  - REFERENCED: Shader Toy 2d Clouds (https://www.shadertoy.com/view/4tdSWr)
+  - Used code found on ShaderToy for the animated cloud background
 - __Lighting__
-- REFERENCED: Old Homeworks/Emily's lighting demo
-- Applied three specular lights of different colors, directions, and intensities for an artistic lighting effect
-- Only applied to the cobblestone and half-sphere
+  - REFERENCED: Old Homeworks/Emily's lighting demo
+  - Applied three specular lights of different colors, directions, and intensities for an artistic lighting effect
+  - Only applied to the cobblestone and half-sphere
 - __SDF Geometry__
-- Sphere marched SDFs
-- REFERENCED: Old Homeworks/IQ's SDF functions
-- Used boxes and spheres, with various union and intersection operations
-- Separated into different SDF functions so I can distinguish later for different texturing,colors,etc.
+  - Sphere marched SDFs
+  - REFERENCED: Old Homeworks/IQ's SDF functions
+  - Used boxes and spheres, with various union and intersection operations
+  - Separated into different SDF functions so I can distinguish later for different texturing,colors,etc.
 
 ## Paper: Realistic Rain Rendering in Realtime
 ## Link: https://www.sciencedirect.com/science/article/pii/S0097849312001781?via%3Dihub
