@@ -1,4 +1,4 @@
-# Final Project: Rain Environment
+# Final Project: Rainy City
 ## Amy Chen // amyjchen
 ## Demo Link: https://merunicorn.github.io/566-final-project/
 
