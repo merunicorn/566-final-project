@@ -8,6 +8,8 @@ uniform float u_Time;
 uniform sampler2D u_SplashTex1;
 uniform sampler2D u_SplashTex2;
 uniform sampler2D u_TestTex2;
+uniform sampler2D u_CobbleTex;
+uniform sampler2D u_SoilTex;
 
 in vec2 fs_Pos;
 in vec2 fs_UV;
@@ -83,6 +85,87 @@ vec3 rayCast(vec4 s) {
     light = vec3((inverse(view) * vec4(0.0, 0.0, 0.0, 1.0)) - vec4(fs_Pos, 1.0, 1.0));
 
     return dir;
+}
+
+float random1(float t) {
+    return 2.0 * fract(sin(t * 489.12342) * 348921.32457) - 1.0;
+}
+
+vec2 random2(vec2 p, vec2 seed) {
+  return fract(sin(vec2(dot(p + seed, vec2(311.7, 127.1)), dot(p + seed, vec2(269.5, 183.3)))) * 85734.3545);
+}
+
+vec3 remapColor(vec3 c, float offset, float seed) {
+    float ro = random1(seed) * offset;
+    float go = random1(seed + 31242.134) * offset;
+    float bo = random1(seed + 73576.347) * offset;
+    
+    return clamp(vec3(c.r + ro, c.g + go, c.b + bo), 0.0, 1.0);
+}
+
+//Smoothstep (Adam's code)
+vec2 mySmoothStep(vec2 a, vec2 b, float t) {
+    t = smoothstep(0.0, 1.0, t);
+    return mix(a, b, t);
+}
+
+//2d Noise (Adam's code)
+vec2 interpNoise2D(vec2 uv) {
+    vec2 uvFract = fract(uv);
+    vec2 ll = random2(floor(uv), vec2(10.0)); //need to input seeds
+    vec2 lr = random2(floor(uv) + vec2(1,0), vec2(10.0));
+    vec2 ul = random2(floor(uv) + vec2(0,1), vec2(10.0));
+    vec2 ur = random2(floor(uv) + vec2(1,1), vec2(10.0));
+
+    vec2 lerpXL = mySmoothStep(ll, lr, uvFract.x);
+    vec2 lerpXU = mySmoothStep(ul, ur, uvFract.x);
+
+    return mySmoothStep(lerpXL, lerpXU, uvFract.y);
+}
+
+//FBM (Adam's base code)
+vec2 fbm(vec2 uv) {
+    float amp = 20.0;
+    float freq = 1.0;
+    vec2 sum = vec2(0.0);
+    float maxSum = 0.0;
+    int octaves = 10; //can modify
+    for(int i = 0; i < octaves; i++) {
+        sum += interpNoise2D(uv * freq) * amp;
+        maxSum += amp;
+        amp *= 0.5;
+        freq *= 2.0;
+    }
+    return sum / maxSum;
+}
+
+float WorleyNoise(vec2 uv) {
+    // Tile the space
+    vec2 uvInt = floor(uv);
+    vec2 uvFract = fract(uv);
+
+    float minDist = 1.0; // Minimum distance initialized to max.
+
+    // Search all neighboring cells and this cell for their point
+    for(int y = -1; y <= 1; y++) {
+        for(int x = -1; x <= 1; x++) {
+            vec2 neighbor = vec2(float(x), float(y));
+
+            // Random point inside current neighboring cell
+            vec2 point = random2(uvInt + neighbor, vec2(10.0));
+
+            // Compute the distance b/t the point and the fragment
+            // Store the min dist thus far
+            vec2 diff = neighbor + point - uvFract;
+            float dist = length(diff);
+            minDist = min(minDist, dist);
+        }
+    }
+    return minDist;
+}
+
+vec3 smoothstepPow(vec3 c, float p) {
+    return pow(smoothstep(0.0, 1.0, c), vec3(p));
 }
 
 float sdf_sphere(vec3 p, float rad) {
@@ -183,23 +266,121 @@ float pedestalSDF(vec3 p) {
   // BOX 
   vec3 t_box = vec3(0.0, 6.0, 5.0);
   vec3 p_box = trans_pt(p, t_box);
-
-  // TORUS test 
-  // vec3 t_tor = vec3(0.0, 0.0, 5.0);
-  // vec3 p_tor = trans_pt(p, t_tor);
+  vec3 t_b2 = vec3(0.0, -1.8, 5.0);
+  vec3 p_b2 = trans_pt(p, t_b2);
 
   // SDFs
   float sph = sdf_sphere(p_sph, 3.5); // radius
   float box = sdf_box(p_box, vec3(4.0)); // l,w,h 
-  // float tor = sdf_torus(p_tor, vec2(2.5, 0.5)); // torus radius, tube radius/thickness
+  float b2 = sdf_box(p_b2, vec3(4.0)); // l,w,h 
 
   // COMBINE SHAPES 
   float dist = sect_op(sph, box);
-  // float dist2 = union_op(dist, tor);
-  // dist = dist2;
+  float dist2 = sect_op(dist, b2);
 
   // RETURN DIST 
-  // float dist = sph;
+  dist = dist2;
+  return dist;
+}
+
+float soilSDF(vec3 p) {
+  // SPHERE 
+  vec3 t_sph = vec3(0.0, 2.1, 5.0);
+  vec3 p_sph = trans_pt(p, t_sph);
+
+  // BOX 
+  vec3 t_box = vec3(0.0, 6.0, 5.0);
+  vec3 p_box = trans_pt(p, t_box);
+  vec3 t_b2 = vec3(0.0, -1.5, 5.0);
+  vec3 p_b2 = trans_pt(p, t_b2);
+
+  // SDFs
+  float sph = sdf_sphere(p_sph, 3.5); // radius
+  float box = sdf_box(p_box, vec3(4.0)); // l,w,h 
+  float b2 = sdf_box(p_b2, vec3(4.0)); // l,w,h 
+
+  // COMBINE SHAPES 
+  float dist = sect_op(sph, box);
+  //float dist2 = sect_op(dist, b2);
+
+  // apply worley noise for water effect
+  worl = WorleyNoise(5.0 * p.xz);
+
+  // RETURN DIST 
+  //dist = dist2;
+  return dist;
+}
+
+float citySDF(vec3 p) {
+  // PARAMETERS
+  float size = 0.4;
+  float size2 = 0.6;
+
+  float size3 = 0.2;
+  float size4 = 0.07;
+  // SPHERE 
+  vec3 t_sph = vec3(0.0, 2.1, 5.0);
+  vec3 p_sph = trans_pt(p, t_sph);
+
+  // BOX 
+  vec3 t_box = vec3(0.0, 1.0, 3.0);
+  vec3 p_box = trans_pt(p, t_box);
+  vec3 t_b1a = vec3(0.0, 0.9, 3.0);
+  vec3 p_b1a = trans_pt(p, t_b1a);
+  vec3 t_b1b = vec3(0.0, 0.3, 3.0);
+  vec3 p_b1b = trans_pt(p, t_b1b);
+
+  vec3 t_b2 = vec3(-2.0, 0.0, 5.0);
+  vec3 p_b2 = trans_pt(p, t_b2);
+
+  vec3 t_b3 = vec3(-1.0, 2.0, 7.0);
+  vec3 p_b3 = trans_pt(p, t_b3);
+
+  vec3 t_b4 = vec3(1.5, 0.5, 5.0);
+  vec3 p_b4 = trans_pt(p, t_b4);
+  vec3 t_b4a = vec3(1.5, 0.3, 5.0);
+  vec3 p_b4a = trans_pt(p, t_b4a);
+
+  vec3 t_b5 = vec3(1.0, 2.0, 3.0);
+  vec3 p_b5 = trans_pt(p, t_b5);
+  vec3 t_b6 = vec3(-1.0, 1.0, 3.0);
+  vec3 p_b6 = trans_pt(p, t_b6);
+
+  vec3 t_b7 = vec3(2.5, 0.0, 6.5);
+  vec3 p_b7 = trans_pt(p, t_b7);
+  vec3 t_b8 = vec3(-2.5, 0.0, 6.0);
+  vec3 p_b8 = trans_pt(p, t_b8);
+
+  // SDFs
+  float sph = sdf_sphere(p_sph, 3.5); // radius
+  float box = sdf_box(p_box, vec3(size,3.0,size)); // w,h,l 
+  float b1a = sdf_box(p_b1a, vec3(size3,3.0,size3)); // w,h,l 
+  float b1b = sdf_box(p_b1b, vec3(size4,3.0,size4)); // w,h,l 
+
+  float b2 = sdf_box(p_b2, vec3(size,3.0,size)); // w,h,l 
+  float b3 = sdf_box(p_b3, vec3(size,2.0,size)); // w,h,l 
+  float b4 = sdf_box(p_b4, vec3(size2,4.0,size2)); // w,h,l 
+  float b4a = sdf_box(p_b4a, vec3(size,4.0,size)); // w,h,l 
+
+  float b5 = sdf_box(p_b5, vec3(size2,3.0,size2)); // w,h,l 
+  float b6 = sdf_box(p_b6, vec3(size2,4.0,size2)); // w,h,l 
+  float b7 = sdf_box(p_b7, vec3(size,2.0,size)); // w,h,l 
+  float b8 = sdf_box(p_b8, vec3(size,2.0,size)); // w,h,l
+
+  // COMBINE SHAPES 
+  float dist = union_op(b2, box);
+  dist = union_op(b3, dist);
+  dist = union_op(b4, dist);
+  dist = union_op(b5, dist);
+  dist = union_op(b6, dist);
+  dist = union_op(b7, dist);
+  dist = union_op(b8, dist);
+
+  dist = union_op(b1a, dist);
+  dist = union_op(b1b, dist);
+  dist = union_op(b4a, dist);
+
+  // RETURN DIST 
   return dist;
 }
 
@@ -213,6 +394,24 @@ vec3 estNormalPed(vec3 p) {
   return normalize(nor_c);
 }
 
+vec3 estNormalSoil(vec3 p) {
+  // find normal of soil points
+  float eps = 0.001;
+  vec3 nor_c = vec3(soilSDF(vec3(p.x + eps, p.y, p.z)) - soilSDF(vec3(p.x - eps, p.y, p.z)),
+                  soilSDF(vec3(p.x, p.y + eps, p.z)) - soilSDF(vec3(p.x, p.y - eps, p.z)),
+                  soilSDF(vec3(p.x, p.y, p.z + eps)) - soilSDF(vec3(p.x, p.y, p.z - eps)));
+  return normalize(nor_c);
+}
+
+vec3 estNormalCity(vec3 p) {
+  // find normal of city points
+  float eps = 0.001;
+  vec3 nor_c = vec3(citySDF(vec3(p.x + eps, p.y, p.z)) - citySDF(vec3(p.x - eps, p.y, p.z)),
+                  citySDF(vec3(p.x, p.y + eps, p.z)) - citySDF(vec3(p.x, p.y - eps, p.z)),
+                  citySDF(vec3(p.x, p.y, p.z + eps)) - citySDF(vec3(p.x, p.y, p.z - eps)));
+  return normalize(nor_c);
+}
+
 vec2 rayMarch(vec3 eye, vec3 dir) { 
   // rayMarch returns (t, object id)
   float t = 0.01;
@@ -222,6 +421,8 @@ vec2 rayMarch(vec3 eye, vec3 dir) {
     p = eye + t * dir;
 
     float dist = pedestalSDF(p);
+    float dist2 = soilSDF(p);
+    float dist3 = citySDF(p);
     nor = estNormalPed(p);
 
     if (dist < 0.00001) {
@@ -229,13 +430,25 @@ vec2 rayMarch(vec3 eye, vec3 dir) {
       map_value = dist;
       nor = estNormalPed(p);
       return vec2(t, 1.0);  
-      // move along ray
-      t += dist;
+    }
+    else if (dist2 < 0.00001) {
+      // at soil surface
+      map_value = dist2;
+      nor = estNormalSoil(p);
+      return vec2(t, 2.0);  
+    }
+    else if (dist3 < 0.00001) {
+      // at city surface
+      map_value = dist3;
+      nor = estNormalCity(p);
+      return vec2(t, 3.0);  
     }
     else {
       // increment by smallest distance
-      t += dist;
-      map_value = dist;
+      float dist_min = min(dist, dist2);
+      dist_min = min(dist_min, dist3);
+      t += dist_min;
+      map_value = dist_min;
     }
   
     if (t >= 1000.0) {
@@ -262,14 +475,72 @@ float softShadow(vec3 dir, vec3 origin, float min_t, float k) {
   return res;
 }
 
+bool rayBoxIntersection(vec3 origin, vec3 dir, vec3 min, vec3 max) {
+  // check intersection of ray with cube for bounding box purposes
+  float near = -1.0 * (1.0 / 0.0);
+  float far = (1.0 / 0.0);
+  float t0;
+  float t1;
+  for (int i = 0; i < 3; i++) {
+    if (dir[i] == 0.0) {
+      if (origin[i] < min[i] || origin[i] > max[i]) {
+        return false;
+      }
+    }
+    t0 = (min[i] - origin[i]) / dir[i];
+    t1 = (max[i] - origin[i]) / dir[i];
+    if (t0 > t1) {
+      float temp = t0;
+      t0 = t1;
+      t1 = temp;
+    }
+    if (t0 > near) {
+      near = t0;
+    }
+    if (t1 < far) {
+      far = t1;
+    }
+  }
+  if (near > far) {
+    return false;
+  }
+  else {
+    return true;
+  }
+}
+
+vec2 brickTile(vec2 _st, float _zoom, float offset){
+    _st *= _zoom;
+
+    if (offset == 1.0) {
+      // Here is where the offset is happening
+      _st.x += step(1., mod(_st.y,2.0)) * 0.5;
+    }
+    return fract(_st);
+}
+
+float box(vec2 _st, vec2 _size){
+    _size = vec2(0.5)-_size*0.4;
+    vec2 uv = smoothstep(_size,_size+vec2(1e-4),_st);
+    uv *= smoothstep(_size,_size+vec2(1e-4),vec2(1.0)-_st);
+    return uv.x*uv.y;
+}
+
 void main() {
   // RAYCASTING
   // convert to NDC screen coors
   vec4 s = vec4(-1.0 * (((gl_FragCoord.x / u_Dimensions.x) * 2.0) - 1.0),
                 -1.0 * (1.0 - ((gl_FragCoord.y / u_Dimensions.y) * 2.0)), 1.0, 1.0);
   vec3 dir = rayCast(s);
-  // out_Col = vec4(vec3(0.5 * (dir + vec3(1.0, 1.0, 1.0))), 1.0);
 
+  // bounding boxes 
+  vec3 center = vec3(0.0,0.0,5.0);
+  vec3 box_min = center - vec3(-2.5, 0.2, 0.0) - vec3(7.0);
+  vec3 box_max = center - vec3(-4.5, -5.0, 0.0) + vec3(0.0);
+  bool bound_test = rayBoxIntersection(u_Eye, dir, box_min, box_max);
+
+  if (bound_test) {
+    // in root bounding box
   // RAYMARCHING
     vec2 march = rayMarch(u_Eye, dir);
     if (march[0] < 1000.0) {
@@ -277,28 +548,107 @@ void main() {
       if (march[1] == 1.0) {
         // hit pedestal
         // diffuseColor = vec4(colorFxn(vec3(185.0, 230.0, 243.0)), 1.0);
+
+        // diffuseColor = vec4(colorFxn(vec3(2.0, 27.0, 38.0)), 1.0);
+        // diffuseColor = texture(u_CobbleTex, fs_UV);
+        
+        vec2 st = gl_FragCoord.xy / u_Dimensions.xy;
+        vec3 color = vec3(0.0);
+        st /= vec2(2.15,0.85) / 1.5;
+        st = brickTile(st,50.0, 1.0);
+        color = vec3(box(st,vec2(0.85)));
+        if (color[0] < 0.5) {
+          diffuseColor = vec4(vec3(0.3),1.0);
+        }
+        else {
+          diffuseColor = vec4(colorFxn(vec3(233.0, 190.0, 175.0)), 1.0);
+        }
+        
+      }
+      else if (march[1] == 2.0) {
+        // hit soil
         diffuseColor = vec4(colorFxn(vec3(2.0, 27.0, 38.0)), 1.0);
-      }        
+        diffuseColor = vec4(colorFxn(vec3(240.0, 152.0, 198.0)), 1.0);
+        // diffuseColor = texture(u_SoilTex, fs_UV);
+
+        float water_noise = clamp(WorleyNoise(vec2(march)), 0.0, 1.0);
+        diffuseColor = vec4(smoothstepPow(vec3(diffuseColor), water_noise * 0.2), 1.0);
+
+        vec2 st = vec2(worl);
+        //vec2 st = gl_FragCoord.xy / u_Dimensions.xy;
+        //st = fbm(st);
+        //st *= st;
+        st = fbm(st + fbm(st + fbm(st + fbm(st))));
+        st *= st;
+        st += st;
+        st += st;
+        st += st;
+        st += st;
+        float test_noise = clamp(WorleyNoise(st), 0.0, 1.0);
+        if (test_noise < 0.5) {
+          diffuseColor = vec4(colorFxn(vec3(180.0, 152.0, 198.0)), 1.0);
+        }
+        else if (test_noise < 0.7) {
+          diffuseColor = vec4(colorFxn(vec3(140.0, 152.0, 198.0)), 1.0);
+        }
+        else {
+          diffuseColor = vec4(colorFxn(vec3(160.0, 152.0, 198.0)), 1.0);
+        }
+        // diffuseColor =  vec4(worl) * vec4(worl) * vec4(worl) / 5.0;
+        // diffuseColor += vec4(colorFxn(vec3(160.0, 84.0, 40.0)), 1.0);
+
+        // diffuseColor = vec4(colorFxn(vec3(81.0, 37.0, 21.0)), 1.0);
+        /*float y = 0.1;
+        float x = clamp(worl, 0.0, y);
+        if (x == y) {
+          diffuseColor = vec4(colorFxn(vec3(81.0, 37.0, 21.0)),1.0);
+        }
+        else {
+          diffuseColor = vec4(colorFxn(vec3(160.0, 84.0, 40.0)),1.0);
+        }*/
+      } 
+      else if (march[1] == 3.0) {
+        // hit city
+        // diffuseColor = vec4(vec3(0.0),1.0);
+
+        vec2 st = gl_FragCoord.xy / u_Dimensions.xy;
+        vec3 color = vec3(0.0);
+        st = brickTile(st, 80.0, 0.0);
+        color = vec3(box(st,vec2(0.5)));
+        if (color[0] < 0.5) {
+          // diffuseColor = vec4(vec3(0.3),1.0);
+          diffuseColor = vec4(vec3(0.0),1.0);
+        }
+        else {
+          // diffuseColor = vec4(colorFxn(vec3(233.0, 190.0, 175.0)), 1.0);
+          diffuseColor = vec4(colorFxn(vec3(240.0, 152.0, 198.0)), 1.0);
+        }
+      }       
 
       // LIGHTING
-      /*
-      if (march[1] == 1.0) { // if matches specific SDF id
-        vec4 lights[4];
-        vec3 lightColor[4];
+      
+      if (march[1] == 1.0 || march[1] == 2.0) { // if matches specific SDF id
+        //vec4 lights[4];
+        //vec3 lightColor[4];
+        //vec4 lights[2];
+        //vec3 lightColor[2];
+        vec4 lights[3];
+        vec3 lightColor[3];
 
         // Light positions with intensity as w-component
         lights[0] = vec4(6.0, 3.0, 5.0, 2.0); // key light
         lights[1] = vec4(-6.0, 3.0, 5.0, 1.5); // fill light
-        lights[2] = vec4(0.0, -3.0, 5.0, 2.0);
-        lights[3] = vec4(vec3(light), 1.0);
+        lights[2] = vec4(0.0, 15.0, 5.0, 1.0);
+        // lights[2] = vec4(vec3(light), 0.5);
         
-        lightColor[0] = colorFxn(vec3(132.0, 115.0, 198.0));
-        lightColor[1] = colorFxn(vec3(255.0, 241.0, 207.0));
-        lightColor[2] = colorFxn(vec3(155.0, 233.0, 255.0));
-        lightColor[3] = vec3(1.0);
+        lightColor[0] = colorFxn(vec3(120.0, 87.0, 219.0));
+        lightColor[1] = colorFxn(vec3(255.0, 147.0, 207.0));
+        lightColor[2] = colorFxn(vec3(150.0, 173.0, 255.0));
+        //lightColor[2] = vec3(1.0);
 
         vec3 sum = vec3(0.0);
-        for (int j = 0; j < 4; j++) {
+        for (int j = 0; j < 3; j++) {
+        //for (int j = 0; j < 4; j++) {
           // Calculate diffuse term for shading
           float diffuseTerm = dot(normalize(nor), normalize(vec3(lights[j])));
           // Avoid negative lighting values
@@ -308,7 +658,8 @@ void main() {
 
           // Implement specular light
           vec4 H;
-          for (int i = 0; i < 4; i++) {
+          for (int i = 0; i < 3; i++) {
+          //for (int i = 0; i < 4; i++) {
             H[i] = (lights[j][i] + u_Eye[i]) / 2.0;
           }
           float specularIntensity = max(pow(dot(normalize(H), normalize(vec4(nor,1.0))), 1.5), 0.0);
@@ -318,19 +669,26 @@ void main() {
           diffuseColor *= softShadow(dir, vec3(lights[j]), 1.5, 4.0);
           sum += mater * diffuseColor.rgb * (lights[j].w + specularIntensity);
         }
+        // out_Col = vec4((sum / 4.0), 1.0);
         out_Col = vec4((sum / 3.0), 1.0);
       }
       else {
         out_Col = diffuseColor;
       }
-      */
-      out_Col = diffuseColor;
+      
+      //out_Col = diffuseColor;
     }
     else {
       // bg color
-      // out_Col = vec4(colorFxn(vec3(2.0, 27.0, 38.0)), 1.0);
-      out_Col = vec4(0.5 * (fs_Pos + vec2(1.0)), 0.0, 1.0);
+      out_Col = vec4(colorFxn(vec3(27.0, 26.0, 68.0)), 1.0);
+      // out_Col = vec4(0.5 * (fs_Pos + vec2(1.0)), 0.0, 1.0);
     }
+  }
+  else {
+    // bg color
+    out_Col = vec4(colorFxn(vec3(27.0, 26.0, 68.0)), 1.0);
+    // out_Col = vec4(colorFxn(vec3(2.0, 27.0, 38.0)), 1.0);
+  }
 
   // COLOR
   // out_Col = vec4(0.5 * (fs_Pos + vec2(1.0)), 0.0, 1.0);

@@ -51,6 +51,8 @@ class ShaderProgram {
   unifSampler1: WebGLUniformLocation;
   unifSampler2: WebGLUniformLocation;
   unifSampler3: WebGLUniformLocation;
+  unifSampler4: WebGLUniformLocation;
+  unifSampler5: WebGLUniformLocation;
 
   constructor(shaders: Array<Shader>) {
     this.prog = gl.createProgram();
@@ -95,6 +97,8 @@ class ShaderProgram {
     this.unifSampler1   = gl.getUniformLocation(this.prog, "u_SplashTex1");
     this.unifSampler2   = gl.getUniformLocation(this.prog, "u_TestTex2");
     this.unifSampler3   = gl.getUniformLocation(this.prog, "u_SplashTex2");
+    this.unifSampler4   = gl.getUniformLocation(this.prog, "u_CobbleTex");
+    this.unifSampler5   = gl.getUniformLocation(this.prog, "u_SoilTex");
   }
 
    // Bind the given Texture to the given texture unit

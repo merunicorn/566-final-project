@@ -8,6 +8,8 @@ import Camera from './Camera';
 import {setGL} from './globals';
 import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 import Texture from './rendering/gl/Texture';
+import {readTextFile} from './globals';
+import Mesh from './geometry/Mesh';
 
 import Particle from './particles';
 import Grid from './grid';
@@ -26,9 +28,15 @@ let fallmat: mat4;
 let fallmat2: mat4;
 let fallmat3: mat4;
 
+// TEXTURES
 let splashTex1: Texture;
 let splashTex2: Texture;
 let testTex2: Texture;
+let cobbleTex: Texture;
+let soilTex: Texture;
+
+// MESHES
+//let meshDog: Mesh;
 
 function loadScene() {
   square = new Square();
@@ -36,8 +44,8 @@ function loadScene() {
   screenQuad = new ScreenQuad();
   screenQuad.create();
 
-  
-  g = new Grid(10, 10);
+  let w = 12;
+  g = new Grid(w, w);
   let gVBO = g.setVBO();
 
   let pVBO = g.setPosVBO();
@@ -50,7 +58,7 @@ function loadScene() {
   let transf3: Float32Array = new Float32Array(gVBO.transf3Array);
   let transf4: Float32Array = new Float32Array(gVBO.transf4Array);
 
-  square.setNumInstances(100); // grid of "particles"
+  square.setNumInstances(w*w); // grid of "particles"
   square.setInstanceVBOs(p, transf1, transf2, transf3, transf4);
 
   let r = 24.0; // changes speed ??
@@ -91,6 +99,15 @@ function loadScene() {
   splashTex1 = new Texture('../resources/splash1.png', 0);
   splashTex2 = new Texture('../resources/splash2.png', 0);
   testTex2 = new Texture('../resources/rain2.png', 1);
+  cobbleTex = new Texture('../resources/cobblestone.png', 2);
+  soilTex = new Texture('../resources/soil.png', 3);
+
+  // BUILD MESHES
+  /*
+  meshDog = new Mesh(readTextFile('../resources/obj/Dachshund.obj'), vec3.fromValues(0,0,0));
+  meshDog.create();
+  meshDog.setNumInstances(w*w); // grid of "particles"
+  meshDog.setInstanceVBOs(p, transf1, transf2, transf3, transf4);*/
 }
 
 function main() {
@@ -141,9 +158,12 @@ function main() {
   instancedShader.bindTexToUnit(instancedShader.unifSampler1, splashTex1, 0);
   instancedShader.bindTexToUnit(instancedShader.unifSampler3, splashTex2, 2);
   instancedShader.bindTexToUnit(instancedShader.unifSampler2, testTex2, 1);
+  instancedShader.bindTexToUnit(instancedShader.unifSampler4, cobbleTex, 3);
   flat.bindTexToUnit(flat.unifSampler1, splashTex1, 0);
   flat.bindTexToUnit(flat.unifSampler3, splashTex2, 2);
   flat.bindTexToUnit(flat.unifSampler2, testTex2, 1);
+  flat.bindTexToUnit(flat.unifSampler4, cobbleTex, 3);
+  flat.bindTexToUnit(flat.unifSampler5, soilTex, 4);
 
   // This function will be called every frame
   function tick() {
